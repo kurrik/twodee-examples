@@ -14,10 +14,6 @@ func init() {
 	runtime.LockOSThread()
 }
 
-func errorCallback(err glfw.ErrorCode, desc string) {
-	fmt.Printf("%v: %v\n", err, desc)
-}
-
 type Application struct {
 	FPSText      *twodee.TextCache
 	tilerenderer *twodee.TileRenderer
@@ -37,7 +33,6 @@ func NewApplication() (app *Application, err error) {
 	var (
 		fg = color.RGBA{0, 255, 0, 255}
 		bg = color.Transparent
-		//bg = color.White
 	)
 	if context, err = twodee.NewContext(); err != nil {
 		return
@@ -69,13 +64,7 @@ func NewApplication() (app *Application, err error) {
 
 func (a *Application) Draw() {
 	a.counter.Incr()
-	if e := gl.GetError(); e != 0 {
-		fmt.Printf("13 ERROR: %s\n", e)
-	}
 	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
-	if e := gl.GetError(); e != 0 {
-		fmt.Printf("1 ERROR: %i\n", e)
-	}
 	a.tilerenderer.Bind()
 	count := 1024
 	for i := 0; i < count; i++ {
@@ -90,12 +79,8 @@ func (a *Application) Draw() {
 }
 
 func (a *Application) Delete() {
-	if a.tilerenderer != nil {
-		a.tilerenderer.Delete()
-	}
-	if a.textrenderer != nil {
-		a.textrenderer.Delete()
-	}
+	a.tilerenderer.Delete()
+	a.textrenderer.Delete()
 	a.FPSText.Delete()
 	a.Context.Delete()
 }
@@ -108,14 +93,10 @@ func main() {
 
 	if app, err = NewApplication(); err != nil {
 		panic(err)
-	} else {
-		fmt.Printf("App: %s\n", app)
 	}
-
 	defer app.Delete()
 
 	for !app.Context.Window.ShouldClose() {
-		//Do OpenGL stuff
 		app.Draw()
 		app.Context.Window.SwapBuffers()
 		glfw.PollEvents()
