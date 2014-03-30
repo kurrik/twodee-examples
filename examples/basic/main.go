@@ -4,7 +4,6 @@ import (
 	twodee "../../libs/twodee"
 	"fmt"
 	"github.com/go-gl/gl"
-	glfw "github.com/go-gl/glfw3"
 	"image/color"
 	"runtime"
 )
@@ -21,6 +20,8 @@ type Application struct {
 	counter      *twodee.Counter
 	font         *twodee.FontFace
 	Context      *twodee.Context
+	mousex       float32
+	mousey       float32
 }
 
 func NewApplication() (app *Application, err error) {
@@ -71,6 +72,7 @@ func (a *Application) Draw() {
 		coord := float32(i-(count/2)) / (float32(count) / 20.0)
 		a.tilerenderer.Draw(i, coord, coord, float32(i*15))
 	}
+	a.tilerenderer.Draw(0, a.mousex, a.mousey, 0)
 	a.tilerenderer.Unbind()
 	a.textrenderer.Bind()
 	a.FPSText.SetText(fmt.Sprintf("%3.3f ms/frame", a.counter.Avg))
@@ -83,6 +85,26 @@ func (a *Application) Delete() {
 	a.textrenderer.Delete()
 	a.FPSText.Delete()
 	a.Context.Delete()
+}
+
+func (a *Application) ProcessMouseEvents() {
+	var (
+		evt    *twodee.MouseEvent
+		worldx float32
+		worldy float32
+		loop   = true
+	)
+	for loop {
+		select {
+		case evt = <-a.Context.Events.MouseEvents:
+			worldx, worldy = a.tilerenderer.ScreenToWorldCoords(evt.X, evt.Y)
+			a.mousex = worldx
+			a.mousey = worldy
+		default:
+			// No more events
+			loop = false
+		}
+	}
 }
 
 func main() {
@@ -99,6 +121,7 @@ func main() {
 	for !app.Context.Window.ShouldClose() {
 		app.Draw()
 		app.Context.Window.SwapBuffers()
-		glfw.PollEvents()
+		app.Context.Events.Poll()
+		app.ProcessMouseEvents()
 	}
 }
