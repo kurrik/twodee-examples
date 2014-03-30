@@ -79,7 +79,7 @@ func (a *Application) Draw() {
 	a.tilerenderer.Bind()
 	count := 1024
 	for i := 0; i < count; i++ {
-		coord := float32(i - (count / 2)) / (float32(count) / 20.0)
+		coord := float32(i-(count/2)) / (float32(count) / 20.0)
 		a.tilerenderer.Draw(i, coord, coord, float32(i*15))
 	}
 	a.tilerenderer.Unbind()
