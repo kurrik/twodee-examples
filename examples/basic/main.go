@@ -30,6 +30,9 @@ func NewApplication() (app *Application, err error) {
 		textrenderer *twodee.TextRenderer
 		font         *twodee.FontFace
 		context      *twodee.Context
+		spritepath   = "assets/textures/sprites32.png"
+		winbounds    = twodee.Rect(0, 0, 600, 600)
+		gamebounds   = twodee.Rect(-10, -10, 10, 10)
 	)
 	var (
 		fg = color.RGBA{0, 255, 0, 255}
@@ -38,13 +41,13 @@ func NewApplication() (app *Application, err error) {
 	if context, err = twodee.NewContext(); err != nil {
 		return
 	}
-	if err = context.CreateWindow(640, 480, "twodee test"); err != nil {
+	if err = context.CreateWindow(int(winbounds.Max.X), int(winbounds.Max.Y), "twodee test"); err != nil {
 		return
 	}
-	if tilerenderer, err = twodee.NewTileRenderer("assets/textures/sprites32.png", 4, 4); err != nil {
+	if tilerenderer, err = twodee.NewTileRenderer(gamebounds, winbounds, spritepath, 4, 4); err != nil {
 		return
 	}
-	if textrenderer, err = twodee.NewTextRenderer(); err != nil {
+	if textrenderer, err = twodee.NewTextRenderer(winbounds); err != nil {
 		return
 	}
 	if font, err = twodee.NewFontFace("assets/fonts/slkscr.ttf", 32, fg, bg); err != nil {
