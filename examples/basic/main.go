@@ -1,10 +1,23 @@
+// Copyright 2014 Arne Roomann-Kurrik
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package main
 
 import (
 	twodee "../../libs/twodee"
 	"fmt"
 	"github.com/go-gl/gl"
-	"image/color"
 	"runtime"
 )
 
@@ -15,31 +28,21 @@ func init() {
 
 type Application struct {
 	FPSText      *twodee.TextCache
-	tilerenderer *twodee.TileRenderer
+	layers       *twodee.Layers
 	textrenderer *twodee.TextRenderer
 	counter      *twodee.Counter
 	font         *twodee.FontFace
 	Context      *twodee.Context
-	mousex       float32
-	mousey       float32
 }
 
 func NewApplication() (app *Application, err error) {
 	var (
-		tilerenderer *twodee.TileRenderer
-		textrenderer *twodee.TextRenderer
-		font         *twodee.FontFace
-		context      *twodee.Context
-		winbounds    = twodee.Rect(0, 0, 600, 600)
-		gamebounds   = twodee.Rect(-10, -10, 10, 10)
-		fg           = color.RGBA{0, 255, 0, 255}
-		bg           = color.Transparent
-		tilemeta     = twodee.TileMetadata{
-			Path:       "assets/textures/sprites32.png",
-			PxPerUnit:  32,
-			TileWidth:  32,
-			TileHeight: 32,
-		}
+		layers    *twodee.Layers
+		context   *twodee.Context
+		gamelayer *GameLayer
+		debuglayer *DebugLayer
+		winbounds = twodee.Rect(0, 0, 600, 600)
+		counter   = twodee.NewCounter()
 	)
 	if context, err = twodee.NewContext(); err != nil {
 		return
@@ -47,24 +50,21 @@ func NewApplication() (app *Application, err error) {
 	if err = context.CreateWindow(int(winbounds.Max.X), int(winbounds.Max.Y), "twodee test"); err != nil {
 		return
 	}
-	if tilerenderer, err = twodee.NewTileRenderer(gamebounds, winbounds, tilemeta); err != nil {
+	layers = twodee.NewLayers()
+	if gamelayer, err = NewGameLayer(winbounds); err != nil {
 		return
 	}
-	if textrenderer, err = twodee.NewTextRenderer(winbounds); err != nil {
+	if debuglayer, err = NewDebugLayer(winbounds, counter); err != nil {
 		return
 	}
-	if font, err = twodee.NewFontFace("assets/fonts/slkscr.ttf", 32, fg, bg); err != nil {
-		return
-	}
+	layers.Push(gamelayer)
+	layers.Push(debuglayer)
 	fmt.Printf("OpenGL version: %s\n", context.OpenGLVersion)
 	fmt.Printf("Shader version: %s\n", context.ShaderVersion)
 	app = &Application{
-		FPSText:      twodee.NewTextCache(font),
-		tilerenderer: tilerenderer,
-		textrenderer: textrenderer,
-		counter:      twodee.NewCounter(),
-		font:         font,
-		Context:      context,
+		layers:  layers,
+		counter: counter,
+		Context: context,
 	}
 	return
 }
@@ -72,40 +72,23 @@ func NewApplication() (app *Application, err error) {
 func (a *Application) Draw() {
 	a.counter.Incr()
 	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
-	a.tilerenderer.Bind()
-	count := 1024
-	for i := 0; i < count; i++ {
-		coord := float32(i-(count/2)) / (float32(count) / 20.0)
-		a.tilerenderer.Draw(i, coord, coord, float32(i*15))
-	}
-	a.tilerenderer.Draw(0, a.mousex, a.mousey, 0)
-	a.tilerenderer.Unbind()
-	a.textrenderer.Bind()
-	a.FPSText.SetText(fmt.Sprintf("%3.3f ms/frame", a.counter.Avg))
-	a.textrenderer.Draw(a.FPSText.Texture, 0, 0)
-	a.textrenderer.Unbind()
+	a.layers.Render()
 }
 
 func (a *Application) Delete() {
-	a.tilerenderer.Delete()
-	a.textrenderer.Delete()
-	a.FPSText.Delete()
+	a.layers.Delete()
 	a.Context.Delete()
 }
 
 func (a *Application) ProcessMouseEvents() {
 	var (
-		evt    *twodee.MouseEvent
-		worldx float32
-		worldy float32
-		loop   = true
+		evt  *twodee.MouseEvent
+		loop = true
 	)
 	for loop {
 		select {
 		case evt = <-a.Context.Events.MouseEvents:
-			worldx, worldy = a.tilerenderer.ScreenToWorldCoords(evt.X, evt.Y)
-			a.mousex = worldx
-			a.mousey = worldy
+			a.layers.HandleMouseEvent(evt)
 		default:
 			// No more events
 			loop = false
