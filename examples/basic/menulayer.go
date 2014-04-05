@@ -19,9 +19,23 @@ import (
 )
 
 type MenuLayer struct {
+	menu *twodee.Menu
 }
 
 func NewMenuLayer() (layer *MenuLayer, err error) {
+	var (
+		menu *twodee.Menu
+	)
+	menu, err = twodee.NewMenu([]*twodee.MenuNode{
+		twodee.NewMenuNode(0, 0, "Restart", nil),
+		twodee.NewMenuNode(0, 1, "Exit", nil),
+	})
+	if err != nil {
+		return
+	}
+	layer = &MenuLayer{
+		menu: menu,
+	}
 	return
 }
 
