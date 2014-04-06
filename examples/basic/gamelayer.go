@@ -62,13 +62,12 @@ func (gl *GameLayer) Render() {
 func (gl *GameLayer) Update() {
 }
 
-func (gl *GameLayer) HandleMouseEvent(evt *twodee.MouseEvent) bool {
-	var (
-		worldx float32
-		worldy float32
-	)
-	worldx, worldy = gl.tiles.ScreenToWorldCoords(evt.X, evt.Y)
-	gl.mousex = worldx
-	gl.mousey = worldy
+func (gl *GameLayer) HandleEvent(evt twodee.Event) bool {
+	switch event := evt.(type) {
+	case *twodee.MouseEvent:
+		worldx, worldy := gl.tiles.ScreenToWorldCoords(event.X, event.Y)
+		gl.mousex = worldx
+		gl.mousey = worldy
+	}
 	return true
 }

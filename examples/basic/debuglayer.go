@@ -64,6 +64,6 @@ func (dl *DebugLayer) Render() {
 func (dl *DebugLayer) Update() {
 }
 
-func (dl *DebugLayer) HandleMouseEvent(evt *twodee.MouseEvent) bool {
+func (dl *DebugLayer) HandleEvent(evt twodee.Event) bool {
 	return true
 }

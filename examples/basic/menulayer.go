@@ -16,7 +16,17 @@ package main
 
 import (
 	twodee "../../libs/twodee"
+	"fmt"
 	"image/color"
+)
+
+const (
+	ProgramCode int32 = iota
+)
+
+const (
+	RestartCode int32 = iota
+	ExitCode
 )
 
 type MenuLayer struct {
@@ -49,8 +59,8 @@ func NewMenuLayer(winb twodee.Rectangle) (layer *MenuLayer, err error) {
 		return
 	}
 	menu, err = twodee.NewMenu([]*twodee.MenuNode{
-		twodee.NewMenuNode(0, 0, "Restart", nil),
-		twodee.NewMenuNode(0, 1, "Exit", nil),
+		twodee.NewMenuNode(ProgramCode, RestartCode, "Restart", nil),
+		twodee.NewMenuNode(ProgramCode, ExitCode, "Exit", nil),
 	})
 	if err != nil {
 		return
@@ -99,6 +109,22 @@ func (ml *MenuLayer) Render() {
 func (ml *MenuLayer) Update() {
 }
 
-func (ml *MenuLayer) HandleMouseEvent(evt *twodee.MouseEvent) bool {
+func (ml *MenuLayer) HandleEvent(evt twodee.Event) bool {
+	switch event := evt.(type) {
+	case *twodee.KeyEvent:
+		if event.Type != twodee.Press {
+			break
+		}
+		switch event.Code {
+		case twodee.KeyUp:
+			ml.menu.Prev()
+		case twodee.KeyDown:
+			ml.menu.Next()
+		case twodee.KeyEnter:
+			if data := ml.menu.Select(); data != nil {
+				fmt.Printf("Selected menu entry %v\n", data)
+			}
+		}
+	}
 	return true
 }

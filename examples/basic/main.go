@@ -37,13 +37,13 @@ type Application struct {
 
 func NewApplication() (app *Application, err error) {
 	var (
-		layers    *twodee.Layers
-		context   *twodee.Context
-		gamelayer *GameLayer
+		layers     *twodee.Layers
+		context    *twodee.Context
+		gamelayer  *GameLayer
 		debuglayer *DebugLayer
-		menulayer *MenuLayer
-		winbounds = twodee.Rect(0, 0, 600, 600)
-		counter   = twodee.NewCounter()
+		menulayer  *MenuLayer
+		winbounds  = twodee.Rect(0, 0, 600, 600)
+		counter    = twodee.NewCounter()
 	)
 	if context, err = twodee.NewContext(); err != nil {
 		return
@@ -85,15 +85,15 @@ func (a *Application) Delete() {
 	a.Context.Delete()
 }
 
-func (a *Application) ProcessMouseEvents() {
+func (a *Application) ProcessEvents() {
 	var (
-		evt  *twodee.MouseEvent
+		evt  twodee.Event
 		loop = true
 	)
 	for loop {
 		select {
-		case evt = <-a.Context.Events.MouseEvents:
-			a.layers.HandleMouseEvent(evt)
+		case evt = <-a.Context.Events.Events:
+			a.layers.HandleEvent(evt)
 		default:
 			// No more events
 			loop = false
@@ -116,6 +116,6 @@ func main() {
 		app.Draw()
 		app.Context.Window.SwapBuffers()
 		app.Context.Events.Poll()
-		app.ProcessMouseEvents()
+		app.ProcessEvents()
 	}
 }
