@@ -33,6 +33,7 @@ type Application struct {
 	counter      *twodee.Counter
 	font         *twodee.FontFace
 	Context      *twodee.Context
+	State        *State
 }
 
 func NewApplication() (app *Application, err error) {
@@ -44,6 +45,7 @@ func NewApplication() (app *Application, err error) {
 		menulayer  *MenuLayer
 		winbounds  = twodee.Rect(0, 0, 600, 600)
 		counter    = twodee.NewCounter()
+		state      = NewState()
 	)
 	if context, err = twodee.NewContext(); err != nil {
 		return
@@ -52,13 +54,13 @@ func NewApplication() (app *Application, err error) {
 		return
 	}
 	layers = twodee.NewLayers()
-	if gamelayer, err = NewGameLayer(winbounds); err != nil {
+	if gamelayer, err = NewGameLayer(winbounds, state); err != nil {
 		return
 	}
 	if debuglayer, err = NewDebugLayer(winbounds, counter); err != nil {
 		return
 	}
-	if menulayer, err = NewMenuLayer(winbounds); err != nil {
+	if menulayer, err = NewMenuLayer(winbounds, state); err != nil {
 		return
 	}
 	layers.Push(gamelayer)
@@ -70,6 +72,7 @@ func NewApplication() (app *Application, err error) {
 		layers:  layers,
 		counter: counter,
 		Context: context,
+		State:   state,
 	}
 	return
 }
@@ -112,7 +115,7 @@ func main() {
 	}
 	defer app.Delete()
 
-	for !app.Context.Window.ShouldClose() {
+	for !app.Context.Window.ShouldClose() && !app.State.Exit {
 		app.Draw()
 		app.Context.Window.SwapBuffers()
 		app.Context.Events.Poll()

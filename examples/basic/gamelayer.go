@@ -22,9 +22,10 @@ type GameLayer struct {
 	tiles  *twodee.TileRenderer
 	mousex float32
 	mousey float32
+	state  *State
 }
 
-func NewGameLayer(winb twodee.Rectangle) (layer *GameLayer, err error) {
+func NewGameLayer(winb twodee.Rectangle, state *State) (layer *GameLayer, err error) {
 	var (
 		tiles *twodee.TileRenderer
 		gameb = twodee.Rect(-10, -10, 10, 10)
@@ -40,6 +41,7 @@ func NewGameLayer(winb twodee.Rectangle) (layer *GameLayer, err error) {
 	}
 	layer = &GameLayer{
 		tiles: tiles,
+		state: state,
 	}
 	return
 }
@@ -50,7 +52,7 @@ func (gl *GameLayer) Delete() {
 
 func (gl *GameLayer) Render() {
 	gl.tiles.Bind()
-	count := 1024
+	count := int(gl.state.ObjectCount)
 	for i := 0; i < count; i++ {
 		coord := float32(i-(count/2)) / (float32(count) / 20.0)
 		gl.tiles.Draw(i, coord, coord, float32(i*15))

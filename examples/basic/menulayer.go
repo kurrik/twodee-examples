@@ -22,11 +22,13 @@ import (
 
 const (
 	ProgramCode int32 = iota
+	SettingCode
 )
 
 const (
 	RestartCode int32 = iota
 	ExitCode
+	ObjectCountCode
 )
 
 type MenuLayer struct {
@@ -37,9 +39,10 @@ type MenuLayer struct {
 	cache   map[int]*twodee.TextCache
 	hicache *twodee.TextCache
 	bounds  twodee.Rectangle
+	state   *State
 }
 
-func NewMenuLayer(winb twodee.Rectangle) (layer *MenuLayer, err error) {
+func NewMenuLayer(winb twodee.Rectangle, state *State) (layer *MenuLayer, err error) {
 	var (
 		menu    *twodee.Menu
 		text    *twodee.TextRenderer
@@ -59,7 +62,14 @@ func NewMenuLayer(winb twodee.Rectangle) (layer *MenuLayer, err error) {
 		return
 	}
 	menu, err = twodee.NewMenu([]*twodee.MenuNode{
-		twodee.NewMenuNode(ProgramCode, RestartCode, "Restart", nil),
+		twodee.NewMenuNode(SettingCode, ObjectCountCode, "Objects", []*twodee.MenuNode{
+			twodee.BackMenuNode(".."),
+			twodee.NewMenuNode(ObjectCountCode, 128, "128", nil),
+			twodee.NewMenuNode(ObjectCountCode, 256, "256", nil),
+			twodee.NewMenuNode(ObjectCountCode, 512, "512", nil),
+			twodee.NewMenuNode(ObjectCountCode, 1024, "1024", nil),
+			twodee.NewMenuNode(ObjectCountCode, 2048, "2048", nil),
+		}),
 		twodee.NewMenuNode(ProgramCode, ExitCode, "Exit", nil),
 	})
 	if err != nil {
@@ -73,6 +83,7 @@ func NewMenuLayer(winb twodee.Rectangle) (layer *MenuLayer, err error) {
 		cache:   map[int]*twodee.TextCache{},
 		hicache: twodee.NewTextCache(hifont),
 		bounds:  winb,
+		state:   state,
 	}
 	return
 }
@@ -122,9 +133,23 @@ func (ml *MenuLayer) HandleEvent(evt twodee.Event) bool {
 			ml.menu.Next()
 		case twodee.KeyEnter:
 			if data := ml.menu.Select(); data != nil {
-				fmt.Printf("Selected menu entry %v\n", data)
+				ml.handleMenuItem(data)
 			}
 		}
 	}
 	return true
+}
+
+func (ml *MenuLayer) handleMenuItem(data *twodee.MenuItemData) {
+	switch data.Key {
+	case ObjectCountCode:
+		ml.state.ObjectCount = data.Value
+	case ProgramCode:
+		switch data.Value {
+		case ExitCode:
+			ml.state.Exit = true
+		}
+	default:
+		fmt.Printf("Selected menu entry %v\n", data)
+	}
 }
