@@ -32,6 +32,7 @@ const (
 )
 
 type MenuLayer struct {
+	visible  bool
 	menu     *twodee.Menu
 	text     *twodee.TextRenderer
 	regfont  *twodee.FontFace
@@ -89,6 +90,7 @@ func NewMenuLayer(winb twodee.Rectangle, state *State) (layer *MenuLayer, err er
 		hicache:  twodee.NewTextCache(hifont),
 		bounds:   winb,
 		state:    state,
+		visible:  false,
 	}
 	return
 }
@@ -97,6 +99,9 @@ func (ml *MenuLayer) Delete() {
 }
 
 func (ml *MenuLayer) Render() {
+	if !ml.visible {
+		return
+	}
 	var (
 		textcache *twodee.TextCache
 		texture   *twodee.Texture
@@ -129,12 +134,60 @@ func (ml *MenuLayer) Update() {
 }
 
 func (ml *MenuLayer) HandleEvent(evt twodee.Event) bool {
+	if !ml.visible {
+		switch event := evt.(type) {
+		case *twodee.KeyEvent:
+			if event.Type != twodee.Press {
+				break
+			}
+			if event.Code == twodee.KeyEscape {
+				ml.menu.Reset()
+				ml.visible = true
+			}
+		}
+		return true
+	}
 	switch event := evt.(type) {
+	case *twodee.MouseButtonEvent:
+		if event.Type != twodee.Press {
+			break
+		}
+		if data := ml.menu.Select(); data != nil {
+			ml.handleMenuItem(data)
+		}
+	case *twodee.MouseMoveEvent:
+		var (
+			y         = ml.bounds.Max.Y
+			my        = y - event.Y
+			texture   *twodee.Texture
+			textcache *twodee.TextCache
+			ok        bool
+		)
+		for i, item := range ml.menu.Items() {
+			if item.Highlighted() {
+				texture = ml.hicache.Texture
+			} else if item.Active() {
+				texture = ml.actcache.Texture
+			} else {
+				if textcache, ok = ml.cache[i]; ok {
+					texture = textcache.Texture
+				}
+			}
+			if texture != nil {
+				y = y - float32(texture.Height)
+				if my >= y {
+					ml.menu.HighlightItem(item)
+					break
+				}
+			}
+		}
 	case *twodee.KeyEvent:
 		if event.Type != twodee.Press {
 			break
 		}
 		switch event.Code {
+		case twodee.KeyEscape:
+			ml.visible = false
 		case twodee.KeyUp:
 			ml.menu.Prev()
 		case twodee.KeyDown:
