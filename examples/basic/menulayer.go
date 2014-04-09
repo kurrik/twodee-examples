@@ -32,14 +32,14 @@ const (
 )
 
 type MenuLayer struct {
-	menu    *twodee.Menu
-	text    *twodee.TextRenderer
-	regfont *twodee.FontFace
-	hifont  *twodee.FontFace
-	cache   map[int]*twodee.TextCache
-	hicache *twodee.TextCache
-	bounds  twodee.Rectangle
-	state   *State
+	menu     *twodee.Menu
+	text     *twodee.TextRenderer
+	regfont  *twodee.FontFace
+	cache    map[int]*twodee.TextCache
+	hicache  *twodee.TextCache
+	actcache *twodee.TextCache
+	bounds   twodee.Rectangle
+	state    *State
 }
 
 func NewMenuLayer(winb twodee.Rectangle, state *State) (layer *MenuLayer, err error) {
@@ -48,42 +48,47 @@ func NewMenuLayer(winb twodee.Rectangle, state *State) (layer *MenuLayer, err er
 		text    *twodee.TextRenderer
 		regfont *twodee.FontFace
 		hifont  *twodee.FontFace
-		regfg   = color.RGBA{200, 200, 200, 255}
-		hifg    = color.RGBA{255, 255, 255, 255}
+		actfont *twodee.FontFace
 		bg      = color.Transparent
+		font    = "assets/fonts/slkscr.ttf"
 	)
 	if text, err = twodee.NewTextRenderer(winb); err != nil {
 		return
 	}
-	if regfont, err = twodee.NewFontFace("assets/fonts/slkscr.ttf", 32, regfg, bg); err != nil {
+	if regfont, err = twodee.NewFontFace(font, 32, color.RGBA{200, 200, 200, 255}, bg); err != nil {
 		return
 	}
-	if hifont, err = twodee.NewFontFace("assets/fonts/slkscr.ttf", 32, hifg, bg); err != nil {
+	if hifont, err = twodee.NewFontFace(font, 32, color.RGBA{255, 240, 120, 255}, bg); err != nil {
 		return
 	}
-	menu, err = twodee.NewMenu([]*twodee.MenuNode{
-		twodee.NewMenuNode(SettingCode, ObjectCountCode, "Objects", []*twodee.MenuNode{
-			twodee.BackMenuNode(".."),
-			twodee.NewMenuNode(ObjectCountCode, 128, "128", nil),
-			twodee.NewMenuNode(ObjectCountCode, 256, "256", nil),
-			twodee.NewMenuNode(ObjectCountCode, 512, "512", nil),
-			twodee.NewMenuNode(ObjectCountCode, 1024, "1024", nil),
-			twodee.NewMenuNode(ObjectCountCode, 2048, "2048", nil),
+	if actfont, err = twodee.NewFontFace(font, 32, color.RGBA{200, 200, 255, 255}, bg); err != nil {
+		return
+	}
+	menu, err = twodee.NewMenu([]twodee.MenuItem{
+		twodee.NewParentMenuItem("Objects", []twodee.MenuItem{
+			twodee.NewBackMenuItem(".."),
+			twodee.NewBoundValueMenuItem("64", 64, &state.ObjectCount),
+			twodee.NewBoundValueMenuItem("128", 128, &state.ObjectCount),
+			twodee.NewBoundValueMenuItem("256", 256, &state.ObjectCount),
+			twodee.NewBoundValueMenuItem("512", 512, &state.ObjectCount),
+			twodee.NewBoundValueMenuItem("1024", 1024, &state.ObjectCount),
+			twodee.NewBoundValueMenuItem("2048", 2048, &state.ObjectCount),
+			twodee.NewBoundValueMenuItem("4096", 4096, &state.ObjectCount),
 		}),
-		twodee.NewMenuNode(ProgramCode, ExitCode, "Exit", nil),
+		twodee.NewKeyValueMenuItem("Exit", ProgramCode, ExitCode),
 	})
 	if err != nil {
 		return
 	}
 	layer = &MenuLayer{
-		menu:    menu,
-		text:    text,
-		regfont: regfont,
-		hifont:  hifont,
-		cache:   map[int]*twodee.TextCache{},
-		hicache: twodee.NewTextCache(hifont),
-		bounds:  winb,
-		state:   state,
+		menu:     menu,
+		text:     text,
+		regfont:  regfont,
+		cache:    map[int]*twodee.TextCache{},
+		actcache: twodee.NewTextCache(actfont),
+		hicache:  twodee.NewTextCache(hifont),
+		bounds:   winb,
+		state:    state,
 	}
 	return
 }
@@ -100,9 +105,12 @@ func (ml *MenuLayer) Render() {
 	)
 	ml.text.Bind()
 	for i, item := range ml.menu.Items() {
-		if item.IsHighlighted() {
+		if item.Highlighted() {
 			ml.hicache.SetText(item.Label())
 			texture = ml.hicache.Texture
+		} else if item.Active() {
+			ml.actcache.SetText(item.Label())
+			texture = ml.actcache.Texture
 		} else {
 			if textcache, ok = ml.cache[i]; !ok {
 				textcache = twodee.NewTextCache(ml.regfont)
