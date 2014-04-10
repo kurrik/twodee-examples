@@ -41,6 +41,8 @@ type MenuLayer struct {
 	actcache *twodee.TextCache
 	bounds   twodee.Rectangle
 	state    *State
+	click    *twodee.Audio
+	sel      *twodee.Audio
 }
 
 func NewMenuLayer(winb twodee.Rectangle, state *State) (layer *MenuLayer, err error) {
@@ -91,6 +93,8 @@ func NewMenuLayer(winb twodee.Rectangle, state *State) (layer *MenuLayer, err er
 		bounds:   winb,
 		state:    state,
 		visible:  false,
+		click:    twodee.NewAudio("assets/sounds/click.ogg"),
+		sel:      twodee.NewAudio("assets/sounds/select.ogg"),
 	}
 	return
 }
@@ -143,6 +147,7 @@ func (ml *MenuLayer) HandleEvent(evt twodee.Event) bool {
 			if event.Code == twodee.KeyEscape {
 				ml.menu.Reset()
 				ml.visible = true
+				ml.sel.Play(1)
 			}
 		}
 		return true
@@ -155,6 +160,7 @@ func (ml *MenuLayer) HandleEvent(evt twodee.Event) bool {
 		if data := ml.menu.Select(); data != nil {
 			ml.handleMenuItem(data)
 		}
+		ml.sel.Play(1)
 	case *twodee.MouseMoveEvent:
 		var (
 			y         = ml.bounds.Max.Y
@@ -176,7 +182,10 @@ func (ml *MenuLayer) HandleEvent(evt twodee.Event) bool {
 			if texture != nil {
 				y = y - float32(texture.Height)
 				if my >= y {
-					ml.menu.HighlightItem(item)
+					if !item.Highlighted() {
+						ml.click.Play(1)
+						ml.menu.HighlightItem(item)
+					}
 					break
 				}
 			}
@@ -188,14 +197,18 @@ func (ml *MenuLayer) HandleEvent(evt twodee.Event) bool {
 		switch event.Code {
 		case twodee.KeyEscape:
 			ml.visible = false
+			ml.sel.Play(1)
 		case twodee.KeyUp:
 			ml.menu.Prev()
+			ml.click.Play(1)
 		case twodee.KeyDown:
 			ml.menu.Next()
+			ml.click.Play(1)
 		case twodee.KeyEnter:
 			if data := ml.menu.Select(); data != nil {
 				ml.handleMenuItem(data)
 			}
+			ml.sel.Play(1)
 		}
 	}
 	return true
