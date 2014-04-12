@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"github.com/go-gl/gl"
 	"runtime"
+	"time"
 )
 
 func init() {
@@ -83,6 +84,10 @@ func (a *Application) Draw() {
 	a.layers.Render()
 }
 
+func (a *Application) Update(elapsed time.Duration) {
+	a.layers.Update(elapsed)
+}
+
 func (a *Application) Delete() {
 	a.layers.Delete()
 	a.Context.Delete()
@@ -115,10 +120,20 @@ func main() {
 	}
 	defer app.Delete()
 
+	var (
+		current_time = time.Now()
+		updated_to   = current_time
+		step         = twodee.Step60Hz
+	)
 	for !app.Context.Window.ShouldClose() && !app.State.Exit {
+		for !updated_to.After(current_time) {
+			app.Update(step)
+			updated_to = updated_to.Add(step)
+		}
 		app.Draw()
 		app.Context.Window.SwapBuffers()
 		app.Context.Events.Poll()
 		app.ProcessEvents()
+		current_time = time.Now()
 	}
 }

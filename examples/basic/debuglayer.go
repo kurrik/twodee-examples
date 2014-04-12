@@ -18,6 +18,7 @@ import (
 	twodee "../../libs/twodee"
 	"fmt"
 	"image/color"
+	"time"
 )
 
 type DebugLayer struct {
@@ -61,7 +62,7 @@ func (dl *DebugLayer) Render() {
 	dl.text.Unbind()
 }
 
-func (dl *DebugLayer) Update() {
+func (dl *DebugLayer) Update(elapsed time.Duration) {
 }
 
 func (dl *DebugLayer) HandleEvent(evt twodee.Event) bool {

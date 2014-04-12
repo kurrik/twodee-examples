@@ -16,12 +16,14 @@ package main
 
 import (
 	twodee "../../libs/twodee"
+	"time"
 )
 
 type GameLayer struct {
 	tiles  *twodee.TileRenderer
 	mousex float32
 	mousey float32
+	player twodee.Entity
 	state  *State
 }
 
@@ -42,6 +44,13 @@ func NewGameLayer(winb twodee.Rectangle, state *State) (layer *GameLayer, err er
 	layer = &GameLayer{
 		tiles: tiles,
 		state: state,
+		player: twodee.NewAnimatingEntity(
+			0, 0,
+			1, 1,
+			0,
+			twodee.Step30Hz,
+			[]int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15},
+		),
 	}
 	return
 }
@@ -57,19 +66,20 @@ func (gl *GameLayer) Render() {
 		coord := float32(i-(count/2)) / (float32(count) / 20.0)
 		gl.tiles.Draw(i, coord, coord, float32(i*15))
 	}
-	gl.tiles.Draw(0, gl.mousex, gl.mousey, 0)
+	pt := gl.player.Pos()
+	gl.tiles.Draw(gl.player.Frame(), pt.X, pt.Y, 0)
 	gl.tiles.Unbind()
 }
 
-func (gl *GameLayer) Update() {
+func (gl *GameLayer) Update(elapsed time.Duration) {
+	gl.player.Update(elapsed)
 }
 
 func (gl *GameLayer) HandleEvent(evt twodee.Event) bool {
 	switch event := evt.(type) {
 	case *twodee.MouseMoveEvent:
 		worldx, worldy := gl.tiles.ScreenToWorldCoords(event.X, event.Y)
-		gl.mousex = worldx
-		gl.mousey = worldy
+		gl.player.MoveTo(twodee.Pt(worldx, worldy))
 	}
 	return true
 }

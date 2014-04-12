@@ -18,6 +18,7 @@ import (
 	twodee "../../libs/twodee"
 	"fmt"
 	"image/color"
+	"time"
 )
 
 const (
@@ -134,7 +135,7 @@ func (ml *MenuLayer) Render() {
 	ml.text.Unbind()
 }
 
-func (ml *MenuLayer) Update() {
+func (ml *MenuLayer) Update(elapsed time.Duration) {
 }
 
 func (ml *MenuLayer) HandleEvent(evt twodee.Event) bool {
