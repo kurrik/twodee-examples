@@ -25,25 +25,27 @@ type GameLayer struct {
 	mousey float32
 	player twodee.Entity
 	state  *State
+	bounds twodee.Rectangle
 }
 
 func NewGameLayer(winb twodee.Rectangle, state *State) (layer *GameLayer, err error) {
 	var (
-		tiles *twodee.TileRenderer
-		gameb = twodee.Rect(-10, -10, 10, 10)
-		tilem = twodee.TileMetadata{
+		tiles  *twodee.TileRenderer
+		bounds = twodee.Rect(-10, -10, 10, 10)
+		tilem  = twodee.TileMetadata{
 			Path:       "assets/textures/sprites32.png",
 			PxPerUnit:  32,
 			TileWidth:  32,
 			TileHeight: 32,
 		}
 	)
-	if tiles, err = twodee.NewTileRenderer(gameb, winb, tilem); err != nil {
+	if tiles, err = twodee.NewTileRenderer(bounds, winb, tilem); err != nil {
 		return
 	}
 	layer = &GameLayer{
-		tiles: tiles,
-		state: state,
+		bounds: bounds,
+		tiles:  tiles,
+		state:  state,
 		player: twodee.NewAnimatingEntity(
 			0, 0,
 			1, 1,
@@ -80,6 +82,29 @@ func (gl *GameLayer) HandleEvent(evt twodee.Event) bool {
 	case *twodee.MouseMoveEvent:
 		worldx, worldy := gl.tiles.ScreenToWorldCoords(event.X, event.Y)
 		gl.player.MoveTo(twodee.Pt(worldx, worldy))
+	case *twodee.KeyEvent:
+		if event.Type == twodee.Release {
+			break
+		}
+		var dist float32 = 0.2
+		switch event.Code {
+		case twodee.KeyLeft:
+			gl.bounds.Min.X -= dist
+			gl.bounds.Max.X -= dist
+			gl.tiles.SetWorldBounds(gl.bounds)
+		case twodee.KeyRight:
+			gl.bounds.Min.X += dist
+			gl.bounds.Max.X += dist
+			gl.tiles.SetWorldBounds(gl.bounds)
+		case twodee.KeyUp:
+			gl.bounds.Min.Y += dist
+			gl.bounds.Max.Y += dist
+			gl.tiles.SetWorldBounds(gl.bounds)
+		case twodee.KeyDown:
+			gl.bounds.Min.Y -= dist
+			gl.bounds.Max.Y -= dist
+			gl.tiles.SetWorldBounds(gl.bounds)
+		}
 	}
 	return true
 }

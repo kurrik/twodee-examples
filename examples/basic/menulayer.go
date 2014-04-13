@@ -199,17 +199,21 @@ func (ml *MenuLayer) HandleEvent(evt twodee.Event) bool {
 		case twodee.KeyEscape:
 			ml.visible = false
 			ml.sel.Play(1)
+			return false
 		case twodee.KeyUp:
 			ml.menu.Prev()
 			ml.click.Play(1)
+			return false
 		case twodee.KeyDown:
 			ml.menu.Next()
 			ml.click.Play(1)
+			return false
 		case twodee.KeyEnter:
 			if data := ml.menu.Select(); data != nil {
 				ml.handleMenuItem(data)
 			}
 			ml.sel.Play(1)
+			return false
 		}
 	}
 	return true
