@@ -50,7 +50,7 @@ func NewGameLayer(winb twodee.Rectangle, state *State) (layer *GameLayer, err er
 			0, 0,
 			1, 1,
 			0,
-			twodee.Step30Hz,
+			twodee.Step10Hz,
 			[]int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15},
 		),
 	}
@@ -66,10 +66,10 @@ func (gl *GameLayer) Render() {
 	count := int(gl.state.ObjectCount)
 	for i := 0; i < count; i++ {
 		coord := float32(i-(count/2)) / (float32(count) / 20.0)
-		gl.tiles.Draw(i, coord, coord, float32(i*15))
+		gl.tiles.Draw(i, coord, coord, float32(i*15), false, false)
 	}
 	pt := gl.player.Pos()
-	gl.tiles.Draw(gl.player.Frame(), pt.X, pt.Y, 0)
+	gl.tiles.Draw(gl.player.Frame(), pt.X, pt.Y, 0, pt.X < 0, pt.Y < 0)
 	gl.tiles.Unbind()
 }
 
