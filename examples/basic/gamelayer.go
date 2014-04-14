@@ -26,25 +26,13 @@ type GameLayer struct {
 	player twodee.Entity
 	state  *State
 	bounds twodee.Rectangle
+	screen twodee.Rectangle
 }
 
 func NewGameLayer(winb twodee.Rectangle, state *State) (layer *GameLayer, err error) {
-	var (
-		tiles  *twodee.TileRenderer
-		bounds = twodee.Rect(-10, -10, 10, 10)
-		tilem  = twodee.TileMetadata{
-			Path:       "assets/textures/sprites32.png",
-			PxPerUnit:  32,
-			TileWidth:  32,
-			TileHeight: 32,
-		}
-	)
-	if tiles, err = twodee.NewTileRenderer(bounds, winb, tilem); err != nil {
-		return
-	}
 	layer = &GameLayer{
-		bounds: bounds,
-		tiles:  tiles,
+		bounds: twodee.Rect(-10, -10, 10, 10),
+		screen: winb,
 		state:  state,
 		player: twodee.NewAnimatingEntity(
 			0, 0,
@@ -54,6 +42,23 @@ func NewGameLayer(winb twodee.Rectangle, state *State) (layer *GameLayer, err er
 			[]int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15},
 		),
 	}
+	err = layer.Reset()
+	return
+}
+
+func (gl *GameLayer) Reset() (err error) {
+	if gl.tiles != nil {
+		gl.tiles.Delete()
+	}
+	var (
+		tilem = twodee.TileMetadata{
+			Path:       "assets/textures/sprites32.png",
+			PxPerUnit:  32,
+			TileWidth:  32,
+			TileHeight: 32,
+		}
+	)
+	gl.tiles, err = twodee.NewTileRenderer(gl.bounds, gl.screen, tilem)
 	return
 }
 

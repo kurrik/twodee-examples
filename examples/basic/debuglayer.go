@@ -26,27 +26,36 @@ type DebugLayer struct {
 	fpstext *twodee.TextCache
 	font    *twodee.FontFace
 	counter *twodee.Counter
+	bounds  twodee.Rectangle
 }
 
 func NewDebugLayer(winb twodee.Rectangle, counter *twodee.Counter) (layer *DebugLayer, err error) {
 	var (
-		text *twodee.TextRenderer
 		font *twodee.FontFace
 		fg   = color.RGBA{0, 255, 0, 255}
 		bg   = color.Transparent
 	)
-	if text, err = twodee.NewTextRenderer(winb); err != nil {
-		return
-	}
 	if font, err = twodee.NewFontFace("assets/fonts/slkscr.ttf", 32, fg, bg); err != nil {
 		return
 	}
 	layer = &DebugLayer{
 		fpstext: twodee.NewTextCache(font),
-		text:    text,
 		font:    font,
 		counter: counter,
+		bounds:  winb,
 	}
+	err = layer.Reset()
+	return
+}
+
+func (dl *DebugLayer) Reset() (err error) {
+	if dl.text != nil {
+		dl.text.Delete()
+	}
+	if dl.text, err = twodee.NewTextRenderer(dl.bounds); err != nil {
+		return
+	}
+	dl.fpstext.Clear()
 	return
 }
 

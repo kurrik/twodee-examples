@@ -28,9 +28,7 @@ func init() {
 }
 
 type Application struct {
-	FPSText      *twodee.TextCache
 	layers       *twodee.Layers
-	textrenderer *twodee.TextRenderer
 	counter      *twodee.Counter
 	font         *twodee.FontFace
 	Context      *twodee.Context
@@ -51,6 +49,8 @@ func NewApplication() (app *Application, err error) {
 	if context, err = twodee.NewContext(); err != nil {
 		return
 	}
+	context.SetFullscreen(false)
+	context.SetCursor(false)
 	if err = context.CreateWindow(int(winbounds.Max.X), int(winbounds.Max.Y), "twodee test"); err != nil {
 		return
 	}
@@ -61,12 +61,8 @@ func NewApplication() (app *Application, err error) {
 	if debuglayer, err = NewDebugLayer(winbounds, counter); err != nil {
 		return
 	}
-	if menulayer, err = NewMenuLayer(winbounds, state); err != nil {
-		return
-	}
 	layers.Push(gamelayer)
 	layers.Push(debuglayer)
-	layers.Push(menulayer)
 	fmt.Printf("OpenGL version: %s\n", context.OpenGLVersion)
 	fmt.Printf("Shader version: %s\n", context.ShaderVersion)
 	app = &Application{
@@ -75,6 +71,10 @@ func NewApplication() (app *Application, err error) {
 		Context: context,
 		State:   state,
 	}
+	if menulayer, err = NewMenuLayer(winbounds, state, app); err != nil {
+		return
+	}
+	layers.Push(menulayer)
 	return
 }
 

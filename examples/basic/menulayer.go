@@ -29,6 +29,7 @@ const (
 const (
 	RestartCode int32 = iota
 	ExitCode
+	FullscreenCode
 	ObjectCountCode
 )
 
@@ -44,21 +45,18 @@ type MenuLayer struct {
 	state    *State
 	click    *twodee.Audio
 	sel      *twodee.Audio
+	app      *Application
 }
 
-func NewMenuLayer(winb twodee.Rectangle, state *State) (layer *MenuLayer, err error) {
+func NewMenuLayer(winb twodee.Rectangle, state *State, app *Application) (layer *MenuLayer, err error) {
 	var (
 		menu    *twodee.Menu
-		text    *twodee.TextRenderer
 		regfont *twodee.FontFace
 		hifont  *twodee.FontFace
 		actfont *twodee.FontFace
 		bg      = color.Transparent
 		font    = "assets/fonts/slkscr.ttf"
 	)
-	if text, err = twodee.NewTextRenderer(winb); err != nil {
-		return
-	}
 	if regfont, err = twodee.NewFontFace(font, 32, color.RGBA{200, 200, 200, 255}, bg); err != nil {
 		return
 	}
@@ -79,14 +77,15 @@ func NewMenuLayer(winb twodee.Rectangle, state *State) (layer *MenuLayer, err er
 			twodee.NewBoundValueMenuItem("2048", 2048, &state.ObjectCount),
 			twodee.NewBoundValueMenuItem("4096", 4096, &state.ObjectCount),
 		}),
+		twodee.NewKeyValueMenuItem("Fullscreen", ProgramCode, FullscreenCode),
 		twodee.NewKeyValueMenuItem("Exit", ProgramCode, ExitCode),
 	})
 	if err != nil {
 		return
 	}
 	layer = &MenuLayer{
+		app:      app,
 		menu:     menu,
-		text:     text,
 		regfont:  regfont,
 		cache:    map[int]*twodee.TextCache{},
 		actcache: twodee.NewTextCache(actfont),
@@ -97,10 +96,32 @@ func NewMenuLayer(winb twodee.Rectangle, state *State) (layer *MenuLayer, err er
 		click:    twodee.NewAudio("assets/sounds/click.ogg"),
 		sel:      twodee.NewAudio("assets/sounds/select.ogg"),
 	}
+	err = layer.Reset()
+	return
+}
+
+func (ml *MenuLayer) Reset() (err error) {
+	if ml.text != nil {
+		ml.text.Delete()
+	}
+	if ml.text, err = twodee.NewTextRenderer(ml.bounds); err != nil {
+		return
+	}
+	ml.actcache.Clear()
+	ml.hicache.Clear()
+	for _, v := range ml.cache {
+		v.Clear()
+	}
 	return
 }
 
 func (ml *MenuLayer) Delete() {
+	ml.text.Delete()
+	ml.actcache.Delete()
+	ml.hicache.Delete()
+	for _, v := range ml.cache {
+		v.Delete()
+	}
 }
 
 func (ml *MenuLayer) Render() {
@@ -129,8 +150,10 @@ func (ml *MenuLayer) Render() {
 			textcache.SetText(item.Label())
 			texture = textcache.Texture
 		}
-		y = y - float32(texture.Height)
-		ml.text.Draw(texture, 0, y)
+		if texture != nil {
+			y = y - float32(texture.Height)
+			ml.text.Draw(texture, 0, y)
+		}
 	}
 	ml.text.Unbind()
 }
@@ -227,6 +250,11 @@ func (ml *MenuLayer) handleMenuItem(data *twodee.MenuItemData) {
 		switch data.Value {
 		case ExitCode:
 			ml.state.Exit = true
+		case FullscreenCode:
+			ml.app.Context.SetFullscreen(!ml.app.Context.Fullscreen())
+			if err := ml.app.layers.Reset(); err != nil {
+				panic(err)
+			}
 		}
 	default:
 		fmt.Printf("Selected menu entry %v\n", data)
