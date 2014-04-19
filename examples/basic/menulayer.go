@@ -56,6 +56,8 @@ func NewMenuLayer(winb twodee.Rectangle, state *State, app *Application) (layer 
 		actfont *twodee.FontFace
 		bg      = color.Transparent
 		font    = "assets/fonts/slkscr.ttf"
+		click   *twodee.Audio
+		sel     *twodee.Audio
 	)
 	if regfont, err = twodee.NewFontFace(font, 32, color.RGBA{200, 200, 200, 255}, bg); err != nil {
 		return
@@ -83,6 +85,12 @@ func NewMenuLayer(winb twodee.Rectangle, state *State, app *Application) (layer 
 	if err != nil {
 		return
 	}
+	if click, err = twodee.NewAudio("assets/sounds/click.ogg"); err != nil {
+		return
+	}
+	if sel, err = twodee.NewAudio("assets/sounds/select.ogg"); err != nil {
+		return
+	}
 	layer = &MenuLayer{
 		app:      app,
 		menu:     menu,
@@ -93,8 +101,8 @@ func NewMenuLayer(winb twodee.Rectangle, state *State, app *Application) (layer 
 		bounds:   winb,
 		state:    state,
 		visible:  false,
-		click:    twodee.NewAudio("assets/sounds/click.ogg"),
-		sel:      twodee.NewAudio("assets/sounds/select.ogg"),
+		click:    click,
+		sel:      sel,
 	}
 	err = layer.Reset()
 	return
