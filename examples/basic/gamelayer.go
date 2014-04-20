@@ -41,8 +41,9 @@ func GetLevel() (out *twodee.Batch, err error) {
 		step     int
 		size     int
 		vertices []float32
+		path string
 	)
-	if data, err = ioutil.ReadFile("assets/levels/level01.tmx"); err != nil {
+	if data, err = ioutil.ReadFile("assets/levels/level03.tmx"); err != nil {
 		return
 	}
 	if m, err = tmxgo.ParseMapString(string(data)); err != nil {
@@ -61,7 +62,10 @@ func GetLevel() (out *twodee.Batch, err error) {
 		v := tiles[i].Triangles()
 		copy(vertices[step*i:], v[:])
 	}
-	out, err = twodee.LoadBatch(vertices, "assets/textures/sprites32.png")
+	if path, err = tmxgo.GetTexturePath(tiles); err != nil {
+		return
+	}
+	out, err = twodee.LoadBatch(vertices, "assets/levels/" + path)
 	return
 }
 

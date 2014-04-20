@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" width="5" height="5" tilewidth="32" tileheight="32">
+ <tileset firstgid="1" name="tiles-outdoor-zelda.fw" tilewidth="32" tileheight="32">
+  <image source="../originals/tiles-outdoor-zelda.fw.png" width="320" height="320"/>
+ </tileset>
+ <layer name="regions" width="5" height="5">
+  <data encoding="base64" compression="zlib">
+   eJxjYMAO2HCIkwMAAiwABw==
+  </data>
+ </layer>
+ <layer name="input_ground" width="5" height="5" visible="0">
+  <data encoding="base64" compression="zlib">
+   eJxjYMAOGHGIkwMAALAAAg==
+  </data>
+ </layer>
+ <layer name="input_ground" width="5" height="5" visible="0">
+  <data encoding="base64" compression="zlib">
+   eJxjYMAOmHCIkwMAAPwAAw==
+  </data>
+ </layer>
+ <layer name="input_ground" width="5" height="5" visible="0">
+  <data encoding="base64" compression="zlib">
+   eJxjYMAOmHGIkwMAAUgABA==
+  </data>
+ </layer>
+ <layer name="input_ground" width="5" height="5" visible="0">
+  <data encoding="base64" compression="zlib">
+   eJxjYMAOWHCIkwMAAZQABQ==
+  </data>
+ </layer>
+ <layer name="input_ground" width="5" height="5" visible="0">
+  <data encoding="base64" compression="zlib">
+   eJxjYMAOWHGIkwMAAeAABg==
+  </data>
+ </layer>
+ <layer name="output1_ground" width="5" height="5" visible="0">
+  <data encoding="base64" compression="zlib">
+   eJxjYMAOGHGIkwMAALAAAg==
+  </data>
+ </layer>
+ <layer name="output2_ground" width="5" height="5" visible="0">
+  <data encoding="base64" compression="zlib">
+   eJxjYMAOmHCIkwMAAPwAAw==
+  </data>
+ </layer>
+ <layer name="output3_ground" width="5" height="5" visible="0">
+  <data encoding="base64" compression="zlib">
+   eJxjYMAOmHGIkwMAAUgABA==
+  </data>
+ </layer>
+ <layer name="output4_ground" width="5" height="5" visible="0">
+  <data encoding="base64" compression="zlib">
+   eJxjYMAOWHCIkwMAAZQABQ==
+  </data>
+ </layer>
+ <layer name="output5_ground" width="5" height="5" visible="0">
+  <data encoding="base64" compression="zlib">
+   eJxjYMAOWHGIkwMAAeAABg==
+  </data>
+ </layer>
+ <layer name="output6_ground" width="5" height="5" visible="0">
+  <data encoding="base64" compression="zlib">
+   eJxjYMAOmHCIkwMAAPwAAw==
+  </data>
+ </layer>
+ <layer name="output7_ground" width="5" height="5" visible="0">
+  <data encoding="base64" compression="zlib">
+   eJxjYMAOmHCIkwMAAPwAAw==
+  </data>
+ </layer>
+ <layer name="output8_ground" width="5" height="5">
+  <data encoding="base64" compression="zlib">
+   eJxjYMAOmHCIkwMAAPwAAw==
+  </data>
+ </layer>
+ <layer name="output9_ground" width="5" height="5">
+  <data encoding="base64" compression="zlib">
+   eJxjYMAOmHCIkwMAAPwAAw==
+  </data>
+ </layer>
+ <layer name="output10_ground" width="5" height="5">
+  <data encoding="base64" compression="zlib">
+   eJxjYMAOmHCIkwMAAPwAAw==
+  </data>
+ </layer>
+ <layer name="output11_ground" width="5" height="5">
+  <data encoding="base64" compression="zlib">
+   eJxjYMAOmHCIkwMAAPwAAw==
+  </data>
+ </layer>
+ <layer name="output12_ground" width="5" height="5">
+  <data encoding="base64" compression="zlib">
+   eJxjYMAOmHCIkwMAAPwAAw==
+  </data>
+ </layer>
+ <layer name="output13_ground" width="5" height="5">
+  <data encoding="base64" compression="zlib">
+   eJxjYMAOmHCIkwMAAPwAAw==
+  </data>
+ </layer>
+ <layer name="output14_ground" width="5" height="5">
+  <data encoding="base64" compression="zlib">
+   eJxjYMAOmHCIkwMAAPwAAw==
+  </data>
+ </layer>
+ <layer name="output15_ground" width="5" height="5">
+  <data encoding="base64" compression="zlib">
+   eJxjYMAOmHCIkwMAAPwAAw==
+  </data>
+ </layer>
+</map>

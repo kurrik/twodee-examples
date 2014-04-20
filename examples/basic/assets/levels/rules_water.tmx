@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" width="10" height="10" tilewidth="32" tileheight="32">
+ <tileset firstgid="1" name="tiles-outdoor-zelda.fw" tilewidth="32" tileheight="32">
+  <image source="../originals/tiles-outdoor-zelda.fw.png" width="512" height="512"/>
+ </tileset>
+ <layer name="regions" width="10" height="10" visible="0">
+  <data encoding="base64" compression="zlib">
+   eJxjYCAesKHR1FI3ChAAACcoAB8=
+  </data>
+ </layer>
+ <layer name="input_ground" width="10" height="10" visible="0">
+  <data encoding="base64" compression="zlib">
+   eJxjYCAeCEJpVgLqCMmTqm4kAQArkAAh
+  </data>
+ </layer>
+ <layer name="input_ground" width="10" height="10" visible="0">
+  <data encoding="base64" compression="zlib">
+   eJxjYCAeCEJpFgLqYPKCeFURNmckAgA8WAAv
+  </data>
+ </layer>
+ <layer name="input_ground" width="10" height="10" visible="0">
+  <data encoding="base64" compression="zlib">
+   eJxjYCAeCEJpZgLqYPKCeFURNmckAgA4rAAs
+  </data>
+ </layer>
+ <layer name="input_ground" width="10" height="10" visible="0">
+  <data encoding="base64" compression="zlib">
+   eJxjYCAeCEJpJgLqYPKCeFURNmckAgA1AAAp
+  </data>
+ </layer>
+ <layer name="input_ground" width="10" height="10" visible="0">
+  <data encoding="base64" compression="zlib">
+   eJxjYCAeCEJpRgLqYPKCeFURNmckAgAxVAAm
+  </data>
+ </layer>
+ <layer name="output_ground" width="10" height="10">
+  <data encoding="base64" compression="zlib">
+   eJxjYCAeCEJpIQLqFKG0EgF1hiTYPVIAALgkAJg=
+  </data>
+ </layer>
+</map>
