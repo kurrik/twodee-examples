@@ -3,39 +3,39 @@
  <tileset firstgid="1" name="tiles-outdoor-zelda.fw" tilewidth="32" tileheight="32">
   <image source="../originals/tiles-outdoor-zelda.fw.png" width="512" height="512"/>
  </tileset>
- <layer name="regions" width="10" height="10" visible="0">
+ <layer name="regions" width="10" height="10">
   <data encoding="base64" compression="zlib">
-   eJxjYCAesKHR1FI3ChAAACcoAB8=
+   eJxjYCAesGGh2ZD4uNQRMg+Zj828kQQAUMgAQw==
   </data>
  </layer>
  <layer name="input_ground" width="10" height="10" visible="0">
   <data encoding="base64" compression="zlib">
-   eJxjYCAeCEJpVgLqCMmTqm4kAQArkAAh
+   eJxjYCAeCEJpViQ+KxKfAYs8PoBNHysR+oYzAAB+dABo
   </data>
  </layer>
  <layer name="input_ground" width="10" height="10" visible="0">
   <data encoding="base64" compression="zlib">
-   eJxjYCAeCEJpFgLqYPKCeFURNmckAgA8WAAv
+   eJxjYCAeCEJpFiQ+CxKfAYs8PoBNHwsR+oYzAAB2KABh
   </data>
  </layer>
  <layer name="input_ground" width="10" height="10" visible="0">
   <data encoding="base64" compression="zlib">
-   eJxjYCAeCEJpZgLqYPKCeFURNmckAgA4rAAs
+   eJxjYCAeCEJpZiQ+MxKfAYs8PoBNHzMR+oYzAABt3ABa
   </data>
  </layer>
  <layer name="input_ground" width="10" height="10" visible="0">
   <data encoding="base64" compression="zlib">
-   eJxjYCAeCEJpJgLqYPKCeFURNmckAgA1AAAp
+   eJxjYCAeCEJpJiQ+ExKfAYs8PoBNHxMR+oYzAABlkABT
   </data>
  </layer>
  <layer name="input_ground" width="10" height="10" visible="0">
   <data encoding="base64" compression="zlib">
-   eJxjYCAeCEJpRgLqYPKCeFURNmckAgAxVAAm
+   eJxjYCAeCEJpRiQ+IxKfAYs8PoBNHyMR+oYzAABdRABM
   </data>
  </layer>
  <layer name="output_ground" width="10" height="10">
   <data encoding="base64" compression="zlib">
-   eJxjYCAeCEJpIQLqFKG0EgF1hiTYPVIAALgkAJg=
+   eJxjYCAeCEJpISS+MBCLoKlThNJKBMwzROMrA7EKkj0jEQAAWe8BKA==
   </data>
  </layer>
 </map>
