@@ -16,17 +16,57 @@ package main
 
 import (
 	twodee "../../libs/twodee"
+	"fmt"
+	"github.com/kurrik/tmxgo"
+	"io/ioutil"
 	"time"
 )
 
 type GameLayer struct {
 	tiles  *twodee.TileRenderer
+	batch  *twodee.BatchRenderer
 	mousex float32
 	mousey float32
 	player twodee.Entity
 	state  *State
 	bounds twodee.Rectangle
 	screen twodee.Rectangle
+	level  *twodee.Batch
+}
+
+func GetLevel() (out *twodee.Batch, err error) {
+	var (
+		data     []byte
+		m        *tmxgo.Map
+		tiles    []*tmxgo.Tile
+		step     int
+		size     int
+		vertices []float32
+	)
+	if data, err = ioutil.ReadFile("assets/levels/level01.tmx"); err != nil {
+		return
+	}
+	if m, err = tmxgo.ParseMapString(string(data)); err != nil {
+		return
+	}
+	if tiles, err = m.TilesFromLayerIndex(0); err != nil {
+		return
+	}
+	step = 30
+	size = len(tiles) * step
+	vertices = make([]float32, size)
+	for i := 0; i < len(tiles); i++ {
+		if tiles[i] == nil {
+			continue
+		}
+		v := tiles[i].Triangles()
+		fmt.Printf("VERTICES %v\n", len(v))
+		copy(vertices[step*i:], v[:])
+		//vertices = append(vertices, v...)
+	}
+	fmt.Printf("VERTICES %v\n", vertices[:30])
+	out, err = twodee.LoadBatch(vertices, "assets/textures/sprites32.png")
+	return
 }
 
 func NewGameLayer(winb twodee.Rectangle, state *State) (layer *GameLayer, err error) {
@@ -50,6 +90,12 @@ func (gl *GameLayer) Reset() (err error) {
 	if gl.tiles != nil {
 		gl.tiles.Delete()
 	}
+	if gl.batch != nil {
+		gl.batch.Delete()
+	}
+	if gl.level != nil {
+		gl.level.Delete()
+	}
 	var (
 		tilem = twodee.TileMetadata{
 			Path:       "assets/textures/sprites32.png",
@@ -58,15 +104,30 @@ func (gl *GameLayer) Reset() (err error) {
 			TileHeight: 32,
 		}
 	)
-	gl.tiles, err = twodee.NewTileRenderer(gl.bounds, gl.screen, tilem)
+	if gl.tiles, err = twodee.NewTileRenderer(gl.bounds, gl.screen, tilem); err != nil {
+		return
+	}
+	if gl.batch, err = twodee.NewBatchRenderer(gl.bounds, gl.screen); err != nil {
+		return
+	}
+	if gl.level, err = GetLevel(); err != nil {
+		return
+	}
 	return
 }
 
 func (gl *GameLayer) Delete() {
 	gl.tiles.Delete()
+	gl.batch.Delete()
+	gl.level.Delete()
 }
 
 func (gl *GameLayer) Render() {
+	gl.batch.Bind()
+	if err := gl.batch.Draw(gl.level, 0, 0, 0); err != nil {
+		panic(err)
+	}
+	gl.batch.Unbind()
 	gl.tiles.Bind()
 	count := int(gl.state.ObjectCount)
 	for i := 0; i < count; i++ {
@@ -97,18 +158,22 @@ func (gl *GameLayer) HandleEvent(evt twodee.Event) bool {
 			gl.bounds.Min.X -= dist
 			gl.bounds.Max.X -= dist
 			gl.tiles.SetWorldBounds(gl.bounds)
+			gl.batch.SetWorldBounds(gl.bounds)
 		case twodee.KeyRight:
 			gl.bounds.Min.X += dist
 			gl.bounds.Max.X += dist
 			gl.tiles.SetWorldBounds(gl.bounds)
+			gl.batch.SetWorldBounds(gl.bounds)
 		case twodee.KeyUp:
 			gl.bounds.Min.Y += dist
 			gl.bounds.Max.Y += dist
 			gl.tiles.SetWorldBounds(gl.bounds)
+			gl.batch.SetWorldBounds(gl.bounds)
 		case twodee.KeyDown:
 			gl.bounds.Min.Y -= dist
 			gl.bounds.Max.Y -= dist
 			gl.tiles.SetWorldBounds(gl.bounds)
+			gl.batch.SetWorldBounds(gl.bounds)
 		}
 	}
 	return true

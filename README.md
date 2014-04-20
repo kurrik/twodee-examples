@@ -6,6 +6,10 @@ Examples/test code for https://github.com/kurrik/twodee.
 
 Complete the setup steps for the twodee lib.
 
+Also:
+
+    go get -u github.com/kurrik/tmxgo
+
 Run:
 
     git submodule init
