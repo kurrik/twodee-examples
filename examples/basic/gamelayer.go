@@ -16,7 +16,6 @@ package main
 
 import (
 	twodee "../../libs/twodee"
-	"fmt"
 	"github.com/kurrik/tmxgo"
 	"io/ioutil"
 	"time"
@@ -60,11 +59,8 @@ func GetLevel() (out *twodee.Batch, err error) {
 			continue
 		}
 		v := tiles[i].Triangles()
-		fmt.Printf("VERTICES %v\n", len(v))
 		copy(vertices[step*i:], v[:])
-		//vertices = append(vertices, v...)
 	}
-	fmt.Printf("VERTICES %v\n", vertices[:30])
 	out, err = twodee.LoadBatch(vertices, "assets/textures/sprites32.png")
 	return
 }
