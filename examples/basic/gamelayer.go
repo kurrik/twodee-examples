@@ -22,15 +22,15 @@ import (
 )
 
 type GameLayer struct {
-	tiles  *twodee.TileRenderer
-	batch  *twodee.BatchRenderer
-	mousex float32
-	mousey float32
-	player twodee.Entity
-	state  *State
-	bounds twodee.Rectangle
-	screen twodee.Rectangle
-	level  *twodee.Batch
+	tiles   *twodee.TileRenderer
+	batch   *twodee.BatchRenderer
+	mousex  float32
+	mousey  float32
+	player  twodee.Entity
+	state   *State
+	bounds  twodee.Rectangle
+	screen  twodee.Rectangle
+	level   *twodee.Batch
 	bgmusic *twodee.Audio
 }
 
@@ -42,7 +42,7 @@ func GetLevel() (out *twodee.Batch, err error) {
 		step     int
 		size     int
 		vertices []float32
-		path string
+		path     string
 	)
 	if data, err = ioutil.ReadFile("assets/levels/level03.tmx"); err != nil {
 		return
@@ -66,7 +66,7 @@ func GetLevel() (out *twodee.Batch, err error) {
 	if path, err = tmxgo.GetTexturePath(tiles); err != nil {
 		return
 	}
-	out, err = twodee.LoadBatch(vertices, "assets/levels/" + path)
+	out, err = twodee.LoadBatch(vertices, "assets/levels/"+path)
 	return
 }
 
@@ -114,7 +114,7 @@ func (gl *GameLayer) Reset() (err error) {
 	if gl.level, err = GetLevel(); err != nil {
 		return
 	}
-    if gl.bgmusic, err = twodee.NewAudio("assets/sounds/Background_Track_1.ogg"); err != nil {
+	if gl.bgmusic, err = twodee.NewAudio("assets/sounds/Background_Track_1.ogg"); err != nil {
 		return
 	}
 	gl.bgmusic.Play(-1)
@@ -125,6 +125,7 @@ func (gl *GameLayer) Delete() {
 	gl.tiles.Delete()
 	gl.batch.Delete()
 	gl.level.Delete()
+	gl.bgmusic.Delete()
 }
 
 func (gl *GameLayer) Render() {
@@ -179,15 +180,15 @@ func (gl *GameLayer) HandleEvent(evt twodee.Event) bool {
 			gl.bounds.Max.Y -= dist
 			gl.tiles.SetWorldBounds(gl.bounds)
 			gl.batch.SetWorldBounds(gl.bounds)
-	    case twodee.KeyN:
-	    	if twodee.IsPlaying() == 1 {
-	    	    twodee.Pause()
-	    	}
-	    case twodee.KeyM:
-	    	if twodee.IsPaused() == 1 {
-	    		twodee.Resume()
-	    	}
-	    }
+		case twodee.KeyN:
+			if twodee.IsPlaying() {
+				twodee.Pause()
+			}
+		case twodee.KeyM:
+			if twodee.IsPaused() {
+				twodee.Resume()
+			}
+		}
 	}
 	return true
 }

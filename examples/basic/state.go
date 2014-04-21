@@ -16,12 +16,12 @@ package main
 
 type State struct {
 	ObjectCount int32
-	Exit bool
+	Exit        bool
 }
 
 func NewState() *State {
 	return &State{
 		ObjectCount: 512,
-		Exit: false,
+		Exit:        false,
 	}
 }

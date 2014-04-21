@@ -28,11 +28,11 @@ func init() {
 }
 
 type Application struct {
-	layers       *twodee.Layers
-	counter      *twodee.Counter
-	font         *twodee.FontFace
-	Context      *twodee.Context
-	State        *State
+	layers  *twodee.Layers
+	counter *twodee.Counter
+	font    *twodee.FontFace
+	Context *twodee.Context
+	State   *State
 }
 
 func NewApplication() (app *Application, err error) {
