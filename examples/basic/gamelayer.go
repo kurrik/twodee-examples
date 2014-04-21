@@ -31,6 +31,7 @@ type GameLayer struct {
 	bounds twodee.Rectangle
 	screen twodee.Rectangle
 	level  *twodee.Batch
+	bgmusic *twodee.Audio
 }
 
 func GetLevel() (out *twodee.Batch, err error) {
@@ -113,6 +114,10 @@ func (gl *GameLayer) Reset() (err error) {
 	if gl.level, err = GetLevel(); err != nil {
 		return
 	}
+    if gl.bgmusic, err = twodee.NewAudio("assets/sounds/Background_Track_1.ogg"); err != nil {
+		return
+	}
+	gl.bgmusic.Play(-1)
 	return
 }
 
@@ -174,7 +179,15 @@ func (gl *GameLayer) HandleEvent(evt twodee.Event) bool {
 			gl.bounds.Max.Y -= dist
 			gl.tiles.SetWorldBounds(gl.bounds)
 			gl.batch.SetWorldBounds(gl.bounds)
-		}
+	    case twodee.KeyN:
+	    	if twodee.IsPlaying() == 1 {
+	    	    twodee.Pause()
+	    	}
+	    case twodee.KeyM:
+	    	if twodee.IsPaused() == 1 {
+	    		twodee.Resume()
+	    	}
+	    }
 	}
 	return true
 }
