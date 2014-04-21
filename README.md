@@ -14,3 +14,9 @@ Run:
 
     git submodule init
     git submodule update
+
+
+##Notes
+
+Hit 'n' to pause background music.
+Hit 'm' to resume background music.
