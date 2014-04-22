@@ -108,13 +108,13 @@ func (gl *GameLayer) Reset() (err error) {
 	if gl.tiles, err = twodee.NewTileRenderer(gl.bounds, gl.screen, tilem); err != nil {
 		return
 	}
-	if gl.batch, err = twodee.NewBatchRenderer(twodee.Rect(-20,-20,20,20), gl.screen); err != nil {
+	if gl.batch, err = twodee.NewBatchRenderer(twodee.Rect(-20, -20, 20, 20), gl.screen); err != nil {
 		return
 	}
 	if gl.level, err = GetLevel(); err != nil {
 		return
 	}
-	if gl.bgmusic, err = twodee.NewAudio("assets/sounds/Background_Track_1.ogg"); err != nil {
+	if gl.bgmusic, err = twodee.NewAudio("assets/sounds/Dream_World_Theme_1.ogg"); err != nil {
 		return
 	}
 	gl.bgmusic.Play(-1)
