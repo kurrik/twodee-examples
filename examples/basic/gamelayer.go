@@ -44,7 +44,7 @@ func GetLevel() (out *twodee.Batch, err error) {
 		vertices []float32
 		path     string
 	)
-	if data, err = ioutil.ReadFile("assets/levels/level03.tmx"); err != nil {
+	if data, err = ioutil.ReadFile("assets/levels/level2/map.tmx"); err != nil {
 		return
 	}
 	if m, err = tmxgo.ParseMapString(string(data)); err != nil {
@@ -66,7 +66,7 @@ func GetLevel() (out *twodee.Batch, err error) {
 	if path, err = tmxgo.GetTexturePath(tiles); err != nil {
 		return
 	}
-	out, err = twodee.LoadBatch(vertices, "assets/levels/"+path)
+	out, err = twodee.LoadBatch(vertices, "assets/levels/level2/"+path)
 	return
 }
 
@@ -108,7 +108,7 @@ func (gl *GameLayer) Reset() (err error) {
 	if gl.tiles, err = twodee.NewTileRenderer(gl.bounds, gl.screen, tilem); err != nil {
 		return
 	}
-	if gl.batch, err = twodee.NewBatchRenderer(gl.bounds, gl.screen); err != nil {
+	if gl.batch, err = twodee.NewBatchRenderer(twodee.Rect(-20,-20,20,20), gl.screen); err != nil {
 		return
 	}
 	if gl.level, err = GetLevel(); err != nil {
