@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" width="31" height="5" tilewidth="32" tileheight="32">
+<map version="1.0" orientation="orthogonal" width="10" height="10" tilewidth="32" tileheight="32">
  <tileset firstgid="1" name="tiles-outdoor-zelda.fw" tilewidth="32" tileheight="32">
   <image source="../originals/tiles-outdoor-zelda.fw.png" width="512" height="512"/>
  </tileset>
- <layer name="regions" width="31" height="5">
+ <layer name="regions" width="10" height="10">
   <data encoding="base64" compression="zlib">
-   eJxjYBhYwDZA9CigPwAAm7QAWw==
+   eJxjYCAesCFheqobSQAAQ2AANw==
   </data>
  </layer>
- <layer name="input_ground" width="31" height="5" visible="0">
+ <layer name="input_ground" width="10" height="10">
   <data encoding="base64" compression="zlib">
-   eJxjYBhYwDRA9CigPwAANYQAHw==
+   eJxjYCAeCAExExTjA0pEqhMEYmEgFiHBDcMdAACKVAB1
   </data>
  </layer>
- <layer name="output_ground" width="31" height="5">
+ <layer name="output_ground" width="10" height="10">
   <data encoding="base64" compression="zlib">
-   eJxjYBhYwAilmaE0C5RmhdJMNKJHAf0BAD6wACQ=
+   eJxjYCAeCAGxGBAzEVCnBMRqRKgTBGJhIBYhwQ3DHQAA0bQArQ==
   </data>
  </layer>
 </map>

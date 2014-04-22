@@ -50,7 +50,7 @@ func GetLevel() (out *twodee.Batch, err error) {
 	if m, err = tmxgo.ParseMapString(string(data)); err != nil {
 		return
 	}
-	if tiles, err = m.TilesFromLayerIndex(0); err != nil {
+	if tiles, err = m.TilesFromLayerName("ground"); err != nil {
 		return
 	}
 	step = 30
