@@ -2,3 +2,4 @@ rules_copy.tmx
 rules_border.tmx
 rules_corner.tmx
 rules_randomize.tmx
+rules_collision.tmx
