@@ -133,8 +133,6 @@ func (ml *MenuLayer) Delete() {
 	}
 	ml.menumusic.Delete()
 	ml.bgmusic.Delete()
-	ml.click.Delete()
-	ml.sel.Delete()
 }
 
 func (ml *MenuLayer) Render() {

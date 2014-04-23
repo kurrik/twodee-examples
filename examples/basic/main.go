@@ -100,6 +100,7 @@ func (a *Application) Update(elapsed time.Duration) {
 
 func (a *Application) Delete() {
 	a.layers.Delete()
+	a.AudioSystem.Delete()
 	a.Context.Delete()
 }
 

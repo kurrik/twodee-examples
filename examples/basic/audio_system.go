@@ -3,6 +3,7 @@ package main
 import twodee "../../libs/twodee"
 
 type AudioSystem struct {
+	app             *Application
 	click           *twodee.Audio
 	sel             *twodee.Audio
 	selObserverId   int
@@ -15,6 +16,13 @@ func (a *AudioSystem) PlaySel(e twodee.GETyper) {
 
 func (a *AudioSystem) PlayClick(e twodee.GETyper) {
 	a.click.Play(1)
+}
+
+func (a *AudioSystem) Delete() {
+	a.app.GameEventHandler.RemoveObserver(MenuSel, a.selObserverId)
+	a.app.GameEventHandler.RemoveObserver(MenuClick, a.clickObserverId)
+	a.click.Delete()
+	a.sel.Delete()
 }
 
 func NewAudioSystem(app *Application) (audioSystem *AudioSystem, err error) {
@@ -30,6 +38,7 @@ func NewAudioSystem(app *Application) (audioSystem *AudioSystem, err error) {
 		return
 	}
 	audioSystem = &AudioSystem{
+		app:   app,
 		click: click,
 		sel:   sel,
 	}
