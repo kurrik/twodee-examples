@@ -175,6 +175,12 @@ func (gl *GameLayer) HandleEvent(evt twodee.Event) bool {
 			gl.bounds.Max.Y -= dist
 			gl.tiles.SetWorldBounds(gl.bounds)
 			gl.batch.SetWorldBounds(gl.bounds)
+		case twodee.KeyM:
+			if twodee.MusicIsPaused() {
+				gl.app.GameEventHandler.Enqueue(twodee.NewBasicGameEvent(ResumeMusic))
+			} else {
+				gl.app.GameEventHandler.Enqueue(twodee.NewBasicGameEvent(PauseMusic))
+			}
 		}
 	}
 	return true

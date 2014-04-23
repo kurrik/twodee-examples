@@ -9,6 +9,8 @@ const (
 	MenuClick
 	BGMusic
 	MenuMusic
+	PauseMusic
+	ResumeMusic
 	SENTINEL
 )
 
