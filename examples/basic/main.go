@@ -60,7 +60,14 @@ func NewApplication() (app *Application, err error) {
 		return
 	}
 	layers = twodee.NewLayers()
-	if gamelayer, err = NewGameLayer(winbounds, state); err != nil {
+	app = &Application{
+		layers:           layers,
+		counter:          counter,
+		Context:          context,
+		State:            state,
+		GameEventHandler: gameEventHandler,
+	}
+	if gamelayer, err = NewGameLayer(winbounds, state, app); err != nil {
 		return
 	}
 	if debuglayer, err = NewDebugLayer(winbounds, counter); err != nil {
@@ -70,13 +77,6 @@ func NewApplication() (app *Application, err error) {
 	layers.Push(debuglayer)
 	fmt.Printf("OpenGL version: %s\n", context.OpenGLVersion)
 	fmt.Printf("Shader version: %s\n", context.ShaderVersion)
-	app = &Application{
-		layers:           layers,
-		counter:          counter,
-		Context:          context,
-		State:            state,
-		GameEventHandler: gameEventHandler,
-	}
 	if menulayer, err = NewMenuLayer(winbounds, state, app); err != nil {
 		return
 	}

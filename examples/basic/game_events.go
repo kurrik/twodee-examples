@@ -7,6 +7,8 @@ import (
 const (
 	MenuSel twodee.GameEventType = iota
 	MenuClick
+	BGMusic
+	MenuMusic
 	SENTINEL
 )
 

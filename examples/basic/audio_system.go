@@ -3,11 +3,29 @@ package main
 import twodee "../../libs/twodee"
 
 type AudioSystem struct {
-	app             *Application
-	click           *twodee.Audio
-	sel             *twodee.Audio
-	selObserverId   int
-	clickObserverId int
+	app                 *Application
+	bgmusic             *twodee.Music
+	menumusic           *twodee.Music
+	click               *twodee.SoundEffect
+	sel                 *twodee.SoundEffect
+	bgmusicObserverId   int
+	menumusicObserverId int
+	selObserverId       int
+	clickObserverId     int
+}
+
+func (a *AudioSystem) PlayBGMusic(e twodee.GETyper) {
+	if twodee.MusicIsPlaying() {
+		twodee.PauseMusic()
+	}
+	a.bgmusic.Play(-1)
+}
+
+func (a *AudioSystem) PlayMenuMusic(e twodee.GETyper) {
+	if twodee.MusicIsPlaying() {
+		twodee.PauseMusic()
+	}
+	a.menumusic.Play(-1)
 }
 
 func (a *AudioSystem) PlaySel(e twodee.GETyper) {
@@ -19,29 +37,45 @@ func (a *AudioSystem) PlayClick(e twodee.GETyper) {
 }
 
 func (a *AudioSystem) Delete() {
+	a.app.GameEventHandler.RemoveObserver(BGMusic, a.bgmusicObserverId)
+	a.app.GameEventHandler.RemoveObserver(MenuMusic, a.menumusicObserverId)
 	a.app.GameEventHandler.RemoveObserver(MenuSel, a.selObserverId)
 	a.app.GameEventHandler.RemoveObserver(MenuClick, a.clickObserverId)
+	a.bgmusic.Delete()
+	a.menumusic.Delete()
 	a.click.Delete()
 	a.sel.Delete()
 }
 
 func NewAudioSystem(app *Application) (audioSystem *AudioSystem, err error) {
 	var (
-		click *twodee.Audio
-		sel   *twodee.Audio
+		bgmusic   *twodee.Music
+		menumusic *twodee.Music
+		click     *twodee.SoundEffect
+		sel       *twodee.SoundEffect
 	)
-	if click, err = twodee.NewAudio("assets/sounds/click.ogg"); err != nil {
+	if bgmusic, err = twodee.NewMusic("assets/sounds/Dream_World_Theme_1.ogg"); err != nil {
+		return
+	}
+	if menumusic, err = twodee.NewMusic("assets/sounds/Menu_Track_1.ogg"); err != nil {
+		return
+	}
+	if click, err = twodee.NewSoundEffect("assets/sounds/click.ogg"); err != nil {
 		return
 	}
 	// TODO: Rename this to sel.ogg.
-	if sel, err = twodee.NewAudio("assets/sounds/select.ogg"); err != nil {
+	if sel, err = twodee.NewSoundEffect("assets/sounds/select.ogg"); err != nil {
 		return
 	}
 	audioSystem = &AudioSystem{
-		app:   app,
-		click: click,
-		sel:   sel,
+		app:       app,
+		bgmusic:   bgmusic,
+		menumusic: menumusic,
+		click:     click,
+		sel:       sel,
 	}
+	audioSystem.bgmusicObserverId = app.GameEventHandler.AddObserver(BGMusic, audioSystem.PlayBGMusic)
+	audioSystem.menumusicObserverId = app.GameEventHandler.AddObserver(MenuMusic, audioSystem.PlayMenuMusic)
 	audioSystem.selObserverId = app.GameEventHandler.AddObserver(MenuSel, audioSystem.PlaySel)
 	audioSystem.clickObserverId = app.GameEventHandler.AddObserver(MenuClick, audioSystem.PlayClick)
 	return

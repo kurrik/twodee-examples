@@ -22,16 +22,16 @@ import (
 )
 
 type GameLayer struct {
-	tiles   *twodee.TileRenderer
-	batch   *twodee.BatchRenderer
-	mousex  float32
-	mousey  float32
-	player  twodee.Entity
-	state   *State
-	bounds  twodee.Rectangle
-	screen  twodee.Rectangle
-	level   *twodee.Batch
-	bgmusic *twodee.Audio
+	tiles  *twodee.TileRenderer
+	batch  *twodee.BatchRenderer
+	mousex float32
+	mousey float32
+	player twodee.Entity
+	state  *State
+	bounds twodee.Rectangle
+	screen twodee.Rectangle
+	level  *twodee.Batch
+	app    *Application
 }
 
 func GetLevel() (out *twodee.Batch, err error) {
@@ -68,7 +68,7 @@ func GetLevel() (out *twodee.Batch, err error) {
 	return
 }
 
-func NewGameLayer(winb twodee.Rectangle, state *State) (layer *GameLayer, err error) {
+func NewGameLayer(winb twodee.Rectangle, state *State, app *Application) (layer *GameLayer, err error) {
 	layer = &GameLayer{
 		bounds: twodee.Rect(-10, -10, 10, 10),
 		screen: winb,
@@ -80,6 +80,7 @@ func NewGameLayer(winb twodee.Rectangle, state *State) (layer *GameLayer, err er
 			twodee.Step10Hz,
 			[]int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15},
 		),
+		app: app,
 	}
 	err = layer.Reset()
 	return
@@ -112,10 +113,7 @@ func (gl *GameLayer) Reset() (err error) {
 	if gl.level, err = GetLevel(); err != nil {
 		return
 	}
-	if gl.bgmusic, err = twodee.NewAudio("assets/sounds/Dream_World_Theme_1.ogg"); err != nil {
-		return
-	}
-	gl.bgmusic.Play(-1)
+	gl.app.GameEventHandler.Enqueue(twodee.NewBasicGameEvent(BGMusic))
 	return
 }
 
@@ -123,7 +121,6 @@ func (gl *GameLayer) Delete() {
 	gl.tiles.Delete()
 	gl.batch.Delete()
 	gl.level.Delete()
-	gl.bgmusic.Delete()
 }
 
 func (gl *GameLayer) Render() {
@@ -178,14 +175,6 @@ func (gl *GameLayer) HandleEvent(evt twodee.Event) bool {
 			gl.bounds.Max.Y -= dist
 			gl.tiles.SetWorldBounds(gl.bounds)
 			gl.batch.SetWorldBounds(gl.bounds)
-		case twodee.KeyN:
-			if twodee.MusicIsPlaying() {
-				twodee.PauseMusic()
-			}
-		case twodee.KeyM:
-			if twodee.MusicIsPaused() {
-				twodee.ResumeMusic()
-			}
 		}
 	}
 	return true
