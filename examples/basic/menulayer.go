@@ -15,10 +15,11 @@
 package main
 
 import (
-	twodee "../../libs/twodee"
 	"fmt"
 	"image/color"
 	"time"
+
+	twodee "../../libs/twodee"
 )
 
 const (
@@ -43,8 +44,6 @@ type MenuLayer struct {
 	actcache *twodee.TextCache
 	bounds   twodee.Rectangle
 	state    *State
-	click    *twodee.Audio
-	sel      *twodee.Audio
 	app      *Application
 }
 
@@ -56,8 +55,6 @@ func NewMenuLayer(winb twodee.Rectangle, state *State, app *Application) (layer 
 		actfont *twodee.FontFace
 		bg      = color.Transparent
 		font    = "assets/fonts/slkscr.ttf"
-		click   *twodee.Audio
-		sel     *twodee.Audio
 	)
 	if regfont, err = twodee.NewFontFace(font, 32, color.RGBA{200, 200, 200, 255}, bg); err != nil {
 		return
@@ -85,12 +82,6 @@ func NewMenuLayer(winb twodee.Rectangle, state *State, app *Application) (layer 
 	if err != nil {
 		return
 	}
-	if click, err = twodee.NewAudio("assets/sounds/click.ogg"); err != nil {
-		return
-	}
-	if sel, err = twodee.NewAudio("assets/sounds/select.ogg"); err != nil {
-		return
-	}
 	layer = &MenuLayer{
 		app:      app,
 		menu:     menu,
@@ -101,8 +92,6 @@ func NewMenuLayer(winb twodee.Rectangle, state *State, app *Application) (layer 
 		bounds:   winb,
 		state:    state,
 		visible:  false,
-		click:    click,
-		sel:      sel,
 	}
 	err = layer.Reset()
 	return
@@ -179,7 +168,7 @@ func (ml *MenuLayer) HandleEvent(evt twodee.Event) bool {
 			if event.Code == twodee.KeyEscape {
 				ml.menu.Reset()
 				ml.visible = true
-				ml.sel.Play(1)
+				ml.app.GameEventHandler.Enqueue(twodee.NewBasicGameEvent(MenuSel))
 			}
 		}
 		return true
@@ -192,7 +181,7 @@ func (ml *MenuLayer) HandleEvent(evt twodee.Event) bool {
 		if data := ml.menu.Select(); data != nil {
 			ml.handleMenuItem(data)
 		}
-		ml.sel.Play(1)
+		ml.app.GameEventHandler.Enqueue(twodee.NewBasicGameEvent(MenuSel))
 	case *twodee.MouseMoveEvent:
 		var (
 			y         = ml.bounds.Max.Y
@@ -215,7 +204,7 @@ func (ml *MenuLayer) HandleEvent(evt twodee.Event) bool {
 				y = y - float32(texture.Height)
 				if my >= y {
 					if !item.Highlighted() {
-						ml.click.Play(1)
+						ml.app.GameEventHandler.Enqueue(twodee.NewBasicGameEvent(MenuClick))
 						ml.menu.HighlightItem(item)
 					}
 					break
@@ -229,21 +218,21 @@ func (ml *MenuLayer) HandleEvent(evt twodee.Event) bool {
 		switch event.Code {
 		case twodee.KeyEscape:
 			ml.visible = false
-			ml.sel.Play(1)
+			ml.app.GameEventHandler.Enqueue(twodee.NewBasicGameEvent(MenuSel))
 			return false
 		case twodee.KeyUp:
 			ml.menu.Prev()
-			ml.click.Play(1)
+			ml.app.GameEventHandler.Enqueue(twodee.NewBasicGameEvent(MenuClick))
 			return false
 		case twodee.KeyDown:
 			ml.menu.Next()
-			ml.click.Play(1)
+			ml.app.GameEventHandler.Enqueue(twodee.NewBasicGameEvent(MenuClick))
 			return false
 		case twodee.KeyEnter:
 			if data := ml.menu.Select(); data != nil {
 				ml.handleMenuItem(data)
 			}
-			ml.sel.Play(1)
+			ml.app.GameEventHandler.Enqueue(twodee.NewBasicGameEvent(MenuSel))
 			return false
 		}
 	}

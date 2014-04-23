@@ -15,11 +15,12 @@
 package main
 
 import (
-	twodee "../../libs/twodee"
 	"fmt"
-	"github.com/go-gl/gl"
 	"runtime"
 	"time"
+
+	twodee "../../libs/twodee"
+	"github.com/go-gl/gl"
 )
 
 func init() {
@@ -28,23 +29,27 @@ func init() {
 }
 
 type Application struct {
-	layers  *twodee.Layers
-	counter *twodee.Counter
-	font    *twodee.FontFace
-	Context *twodee.Context
-	State   *State
+	layers           *twodee.Layers
+	counter          *twodee.Counter
+	font             *twodee.FontFace
+	Context          *twodee.Context
+	State            *State
+	GameEventHandler *twodee.GameEventHandler
+	AudioSystem      *AudioSystem
 }
 
 func NewApplication() (app *Application, err error) {
 	var (
-		layers     *twodee.Layers
-		context    *twodee.Context
-		gamelayer  *GameLayer
-		debuglayer *DebugLayer
-		menulayer  *MenuLayer
-		winbounds  = twodee.Rect(0, 0, 600, 600)
-		counter    = twodee.NewCounter()
-		state      = NewState()
+		layers           *twodee.Layers
+		context          *twodee.Context
+		gamelayer        *GameLayer
+		debuglayer       *DebugLayer
+		menulayer        *MenuLayer
+		winbounds        = twodee.Rect(0, 0, 600, 600)
+		counter          = twodee.NewCounter()
+		state            = NewState()
+		gameEventHandler = twodee.NewGameEventHandler(NumGameEventTypes)
+		audioSystem      *AudioSystem
 	)
 	if context, err = twodee.NewContext(); err != nil {
 		return
@@ -66,15 +71,20 @@ func NewApplication() (app *Application, err error) {
 	fmt.Printf("OpenGL version: %s\n", context.OpenGLVersion)
 	fmt.Printf("Shader version: %s\n", context.ShaderVersion)
 	app = &Application{
-		layers:  layers,
-		counter: counter,
-		Context: context,
-		State:   state,
+		layers:           layers,
+		counter:          counter,
+		Context:          context,
+		State:            state,
+		GameEventHandler: gameEventHandler,
 	}
 	if menulayer, err = NewMenuLayer(winbounds, state, app); err != nil {
 		return
 	}
 	layers.Push(menulayer)
+	if audioSystem, err = NewAudioSystem(app); err != nil {
+		return
+	}
+	app.AudioSystem = audioSystem
 	return
 }
 
@@ -133,6 +143,7 @@ func main() {
 		app.Draw()
 		app.Context.Window.SwapBuffers()
 		app.Context.Events.Poll()
+		app.GameEventHandler.Poll()
 		app.ProcessEvents()
 		current_time = time.Now()
 	}
