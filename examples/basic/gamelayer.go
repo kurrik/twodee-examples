@@ -39,9 +39,7 @@ func GetLevel() (out *twodee.Batch, err error) {
 		data     []byte
 		m        *tmxgo.Map
 		tiles    []*tmxgo.Tile
-		step     int
-		size     int
-		vertices []float32
+		textiles []twodee.TexturedTile
 		path     string
 	)
 	if data, err = ioutil.ReadFile("assets/levels/level2/map.tmx"); err != nil {
@@ -53,20 +51,20 @@ func GetLevel() (out *twodee.Batch, err error) {
 	if tiles, err = m.TilesFromLayerName("ground"); err != nil {
 		return
 	}
-	step = 30
-	size = len(tiles) * step
-	vertices = make([]float32, size)
-	for i := 0; i < len(tiles); i++ {
-		if tiles[i] == nil {
-			continue
-		}
-		v := tiles[i].Triangles()
-		copy(vertices[step*i:], v[:])
-	}
 	if path, err = tmxgo.GetTexturePath(tiles); err != nil {
 		return
 	}
-	out, err = twodee.LoadBatch(vertices, "assets/levels/level2/"+path)
+	textiles = make([]twodee.TexturedTile, len(tiles))
+	for i, t := range tiles {
+		textiles[i] = t
+	}
+	var (
+		tilem = twodee.TileMetadata{
+			Path:      "assets/levels/level2/" + path,
+			PxPerUnit: 32,
+		}
+	)
+	out, err = twodee.LoadBatch(textiles, tilem)
 	return
 }
 
@@ -108,7 +106,7 @@ func (gl *GameLayer) Reset() (err error) {
 	if gl.tiles, err = twodee.NewTileRenderer(gl.bounds, gl.screen, tilem); err != nil {
 		return
 	}
-	if gl.batch, err = twodee.NewBatchRenderer(twodee.Rect(-20, -20, 20, 20), gl.screen); err != nil {
+	if gl.batch, err = twodee.NewBatchRenderer(gl.bounds, gl.screen); err != nil {
 		return
 	}
 	if gl.level, err = GetLevel(); err != nil {
@@ -181,12 +179,12 @@ func (gl *GameLayer) HandleEvent(evt twodee.Event) bool {
 			gl.tiles.SetWorldBounds(gl.bounds)
 			gl.batch.SetWorldBounds(gl.bounds)
 		case twodee.KeyN:
-			if twodee.IsPlaying() {
-				twodee.Pause()
+			if twodee.MusicIsPlaying() {
+				twodee.PauseMusic()
 			}
 		case twodee.KeyM:
-			if twodee.IsPaused() {
-				twodee.Resume()
+			if twodee.MusicIsPaused() {
+				twodee.ResumeMusic()
 			}
 		}
 	}

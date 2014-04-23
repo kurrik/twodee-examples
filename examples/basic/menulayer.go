@@ -35,26 +35,30 @@ const (
 )
 
 type MenuLayer struct {
-	visible  bool
-	menu     *twodee.Menu
-	text     *twodee.TextRenderer
-	regfont  *twodee.FontFace
-	cache    map[int]*twodee.TextCache
-	hicache  *twodee.TextCache
-	actcache *twodee.TextCache
-	bounds   twodee.Rectangle
-	state    *State
-	app      *Application
+	visible   bool
+	menu      *twodee.Menu
+	text      *twodee.TextRenderer
+	regfont   *twodee.FontFace
+	cache     map[int]*twodee.TextCache
+	hicache   *twodee.TextCache
+	actcache  *twodee.TextCache
+	bounds    twodee.Rectangle
+	state     *State
+	menumusic *twodee.Audio
+	bgmusic   *twodee.Audio
+	app       *Application
 }
 
 func NewMenuLayer(winb twodee.Rectangle, state *State, app *Application) (layer *MenuLayer, err error) {
 	var (
-		menu    *twodee.Menu
-		regfont *twodee.FontFace
-		hifont  *twodee.FontFace
-		actfont *twodee.FontFace
-		bg      = color.Transparent
-		font    = "assets/fonts/slkscr.ttf"
+		menu      *twodee.Menu
+		regfont   *twodee.FontFace
+		hifont    *twodee.FontFace
+		actfont   *twodee.FontFace
+		bg        = color.Transparent
+		font      = "assets/fonts/slkscr.ttf"
+		menumusic *twodee.Audio
+		bgmusic   *twodee.Audio
 	)
 	if regfont, err = twodee.NewFontFace(font, 32, color.RGBA{200, 200, 200, 255}, bg); err != nil {
 		return
@@ -82,16 +86,24 @@ func NewMenuLayer(winb twodee.Rectangle, state *State, app *Application) (layer 
 	if err != nil {
 		return
 	}
+	if menumusic, err = twodee.NewAudio("assets/sounds/Menu_Track_1.ogg"); err != nil {
+		return
+	}
+	if bgmusic, err = twodee.NewAudio("assets/sounds/Dream_World_Theme_1.ogg"); err != nil {
+		return
+	}
 	layer = &MenuLayer{
-		app:      app,
-		menu:     menu,
-		regfont:  regfont,
-		cache:    map[int]*twodee.TextCache{},
-		actcache: twodee.NewTextCache(actfont),
-		hicache:  twodee.NewTextCache(hifont),
-		bounds:   winb,
-		state:    state,
-		visible:  false,
+		app:       app,
+		menu:      menu,
+		regfont:   regfont,
+		cache:     map[int]*twodee.TextCache{},
+		actcache:  twodee.NewTextCache(actfont),
+		hicache:   twodee.NewTextCache(hifont),
+		bounds:    winb,
+		state:     state,
+		visible:   false,
+		menumusic: menumusic,
+		bgmusic:   bgmusic,
 	}
 	err = layer.Reset()
 	return
@@ -119,6 +131,10 @@ func (ml *MenuLayer) Delete() {
 	for _, v := range ml.cache {
 		v.Delete()
 	}
+	ml.menumusic.Delete()
+	ml.bgmusic.Delete()
+	ml.click.Delete()
+	ml.sel.Delete()
 }
 
 func (ml *MenuLayer) Render() {
@@ -169,6 +185,10 @@ func (ml *MenuLayer) HandleEvent(evt twodee.Event) bool {
 				ml.menu.Reset()
 				ml.visible = true
 				ml.app.GameEventHandler.Enqueue(twodee.NewBasicGameEvent(MenuSel))
+				if twodee.MusicIsPlaying() {
+					twodee.PauseMusic()
+				}
+				ml.menumusic.Play(-1)
 			}
 		}
 		return true
@@ -219,6 +239,7 @@ func (ml *MenuLayer) HandleEvent(evt twodee.Event) bool {
 		case twodee.KeyEscape:
 			ml.visible = false
 			ml.app.GameEventHandler.Enqueue(twodee.NewBasicGameEvent(MenuSel))
+			ml.bgmusic.Play(-1)
 			return false
 		case twodee.KeyUp:
 			ml.menu.Prev()
@@ -252,6 +273,7 @@ func (ml *MenuLayer) handleMenuItem(data *twodee.MenuItemData) {
 			if err := ml.app.layers.Reset(); err != nil {
 				panic(err)
 			}
+			ml.menumusic.Play(-1)
 		}
 	default:
 		fmt.Printf("Selected menu entry %v\n", data)
