@@ -179,12 +179,12 @@ func (gl *GameLayer) HandleEvent(evt twodee.Event) bool {
 			gl.tiles.SetWorldBounds(gl.bounds)
 			gl.batch.SetWorldBounds(gl.bounds)
 		case twodee.KeyN:
-			if twodee.IsPlaying() {
-				twodee.Pause()
+			if twodee.MusicIsPlaying() {
+				twodee.PauseMusic()
 			}
 		case twodee.KeyM:
-			if twodee.IsPaused() {
-				twodee.Resume()
+			if twodee.MusicIsPaused() {
+				twodee.ResumeMusic()
 			}
 		}
 	}
