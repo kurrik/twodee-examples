@@ -18,5 +18,4 @@ Run:
 
 ##Notes
 
-Hit 'n' to pause background music.
-Hit 'm' to resume background music.
+Use the 'm' key to toggle music on/off
