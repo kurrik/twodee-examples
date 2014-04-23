@@ -5,17 +5,17 @@
  </tileset>
  <layer name="regions" width="13" height="11">
   <data encoding="base64" compression="zlib">
-   eJxjYCAPMEMxNja6OmxsZD4us0bB4AYARFQAJQ==
+   eJxjYBh+gBkN4xIbCD3kgMHqHwBr/ACR
   </data>
  </layer>
  <layer name="input_ground" width="13" height="11">
   <data encoding="base64" compression="zlib">
-   eJxjYCAfiKDRICCKpkaMSDlhNHoUDH4AAC+fAKU=
+   eJxjYBh+gBEJi0DFRNDE8emRhYrJEtAjCsTSQKwCxGpQMRCtCsQyQCxGoT+w2WMMFTMmYA+yu5WhYsoMxIeBMFRMGI8eAB/qAu8=
   </data>
  </layer>
- <layer name="output_ground" width="13" height="11">
+ <layer name="output_ground" width="13" height="11" visible="0">
   <data encoding="base64" compression="zlib">
-   eJxjYCAPSKHxxck0BwQk0PiSFJg1CugHALY4AGM=
+   eJxjYBh+gBGKpYBYBCoGosWR5LDpAam3AmJZqBiINkfShw5g6rWAWA0qBqLVkfRRA0gAsQUQawCxMVQMRGsCsSUQS2LRw4ikTxkqpoykHlcYwPQJQ8WEkdSj6wEAt5kFGQ==
   </data>
  </layer>
 </map>
