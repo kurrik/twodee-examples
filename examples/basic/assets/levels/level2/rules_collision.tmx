@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" width="13" height="13" tilewidth="16" tileheight="16">
+ <tileset firstgid="1" name="tiles.fw" tilewidth="16" tileheight="16">
+  <image source="tiles.fw.png" width="256" height="256"/>
+ </tileset>
+ <layer name="regions" width="13" height="13">
+  <data encoding="base64" compression="zlib">
+   eJxjYCAPMJNIkwtG7aHMnuEAAIHoAEw=
+  </data>
+ </layer>
+ <layer name="input_ground" width="13" height="13">
+  <data encoding="base64" compression="zlib">
+   eJzNzbsVgCAQBVGOLfgBUSNQlJQApf/CSIYG2MSX3Gh3lOrbgCNOOOOCuvN/m8EVLW644yHsOPR44oUBb2HnwYgJM774CTtFeP+nVQdrA1Q=
+  </data>
+ </layer>
+ <layer name="output_collision" width="13" height="13">
+  <data encoding="base64" compression="zlib">
+   eJxjYCAPMJNIkwtG7aHMnuEAAIHoAEw=
+  </data>
+ </layer>
+</map>

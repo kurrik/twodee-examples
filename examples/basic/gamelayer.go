@@ -17,6 +17,7 @@ package main
 import (
 	twodee "../../libs/twodee"
 	"github.com/kurrik/tmxgo"
+	"image/color"
 	"io/ioutil"
 	"time"
 )
@@ -32,6 +33,25 @@ type GameLayer struct {
 	screen twodee.Rectangle
 	level  *twodee.Batch
 	app    *Application
+}
+
+func WriteGrid(m *tmxgo.Map) (err error) {
+	var (
+		grid  *twodee.Grid
+		tiles []*tmxgo.Tile
+	)
+	if tiles, err = m.TilesFromLayerName("collision"); err != nil {
+		return
+	}
+	grid = twodee.NewGrid(m.Width, m.Height)
+	for i, t := range tiles {
+		if t != nil {
+			grid.SetIndex(int32(i), true)
+		}
+	}
+	img := grid.GetImage(color.RGBA{0, 0, 255, 255}, color.RGBA{0, 0, 0, 255})
+	err = twodee.WritePNG("collision.png", img)
+	return
 }
 
 func GetLevel() (out *twodee.Batch, err error) {
@@ -51,6 +71,7 @@ func GetLevel() (out *twodee.Batch, err error) {
 	if tiles, err = m.TilesFromLayerName("ground"); err != nil {
 		return
 	}
+	WriteGrid(m)
 	if path, err = tmxgo.GetTexturePath(tiles); err != nil {
 		return
 	}

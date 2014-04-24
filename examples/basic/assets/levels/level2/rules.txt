@@ -3,4 +3,4 @@ rules_diagonal.tmx
 rules_border.tmx
 rules_corner.tmx
 #rules_randomize.tmx
-#rules_collision.tmx
+rules_collision.tmx
