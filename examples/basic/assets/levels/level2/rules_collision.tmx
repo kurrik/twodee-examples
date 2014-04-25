@@ -5,12 +5,12 @@
  </tileset>
  <layer name="regions" width="13" height="13">
   <data encoding="base64" compression="zlib">
-   eJxjYCAPMJNIkwtG7aHMnuEAAIHoAEw=
+   eJxjYCAPMJNIkwtG7aGOPUMZAACENABP
   </data>
  </layer>
  <layer name="input_ground" width="13" height="13">
   <data encoding="base64" compression="zlib">
-   eJzNzbsVgCAQBVGOLfgBUSNQlJQApf/CSIYG2MSX3Gh3lOrbgCNOOOOCuvN/m8EVLW644yHsOPR44oUBb2HnwYgJM774CTtFeP+nVQdrA1Q=
+   eJzNzbsBgCAQBFGgBfGHGomgpgSg/RdmMjbAJWzysh2l6mawQ4s9DjhW/v+bcEaHC664CTs7ejwwYMRT2LnwxoQZCz7Czota+NPCPggvA1U=
   </data>
  </layer>
  <layer name="output_collision" width="13" height="13">

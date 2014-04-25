@@ -39,6 +39,7 @@ func WriteGrid(m *tmxgo.Map) (err error) {
 	var (
 		grid  *twodee.Grid
 		tiles []*tmxgo.Tile
+		path  []twodee.Point
 	)
 	if tiles, err = m.TilesFromLayerName("collision"); err != nil {
 		return
@@ -50,6 +51,12 @@ func WriteGrid(m *tmxgo.Map) (err error) {
 		}
 	}
 	img := grid.GetImage(color.RGBA{0, 0, 255, 255}, color.RGBA{0, 0, 0, 255})
+	if path, err = grid.GetPath(0, 0, 50, 50); err != nil {
+		return
+	}
+	for _, pt := range path {
+		img.Set(int(pt.X), int(pt.Y), color.RGBA{255, 0, 0, 128})
+	}
 	err = twodee.WritePNG("collision.png", img)
 	return
 }
