@@ -25,6 +25,7 @@ import (
 type GameLayer struct {
 	tiles  *twodee.TileRenderer
 	batch  *twodee.BatchRenderer
+	glow   *twodee.GlowRenderer
 	mousex float32
 	mousey float32
 	player twodee.Entity
@@ -138,6 +139,9 @@ func (gl *GameLayer) Reset() (err error) {
 	if gl.batch, err = twodee.NewBatchRenderer(gl.bounds, gl.screen); err != nil {
 		return
 	}
+	if gl.glow, err = twodee.NewGlowRenderer(128, 128, 10, 0.1, 1.0); err != nil {
+		return
+	}
 	if gl.level, err = GetLevel(); err != nil {
 		return
 	}
@@ -149,6 +153,7 @@ func (gl *GameLayer) Delete() {
 	gl.tiles.Delete()
 	gl.batch.Delete()
 	gl.level.Delete()
+	gl.glow.Delete()
 }
 
 func (gl *GameLayer) Render() {
@@ -164,8 +169,15 @@ func (gl *GameLayer) Render() {
 		gl.tiles.Draw(i, coord, coord, float32(i*15), false, false)
 	}
 	pt := gl.player.Pos()
+
+	gl.glow.Bind()
+	gl.tiles.Draw(gl.player.Frame(), pt.X, pt.Y, 0, pt.X < 0, pt.Y < 0)
+	gl.glow.Unbind()
+
 	gl.tiles.Draw(gl.player.Frame(), pt.X, pt.Y, 0, pt.X < 0, pt.Y < 0)
 	gl.tiles.Unbind()
+
+	gl.glow.Draw()
 }
 
 func (gl *GameLayer) Update(elapsed time.Duration) {
