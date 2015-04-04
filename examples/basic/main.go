@@ -20,7 +20,7 @@ import (
 	"time"
 
 	twodee "../../libs/twodee"
-	"github.com/go-gl/gl"
+	"github.com/go-gl/gl/v3.2-core/gl"
 )
 
 func init() {
