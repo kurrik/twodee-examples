@@ -16,6 +16,7 @@ package main
 
 import (
 	twodee "../../libs/twodee"
+	"fmt"
 	"github.com/kurrik/tmxgo"
 	"image/color"
 	"io/ioutil"
@@ -34,6 +35,7 @@ type GameLayer struct {
 	screen twodee.Rectangle
 	level  *twodee.Batch
 	app    *Application
+	script *twodee.Scripting
 }
 
 func WriteGrid(m *tmxgo.Map) (err error) {
@@ -125,6 +127,9 @@ func (gl *GameLayer) Reset() (err error) {
 	if gl.level != nil {
 		gl.level.Delete()
 	}
+	if gl.glow != nil {
+		gl.glow.Delete()
+	}
 	var (
 		tilem = twodee.TileMetadata{
 			Path:       "assets/textures/sprites32.png",
@@ -143,6 +148,12 @@ func (gl *GameLayer) Reset() (err error) {
 		return
 	}
 	if gl.level, err = GetLevel(); err != nil {
+		return
+	}
+	if gl.script, err = twodee.NewScripting(); err != nil {
+		return
+	}
+	if err = gl.script.LoadScript("assets/scripts/main.js"); err != nil {
 		return
 	}
 	gl.app.GameEventHandler.Enqueue(twodee.NewBasicGameEvent(BGMusic))
@@ -185,6 +196,7 @@ func (gl *GameLayer) Update(elapsed time.Duration) {
 }
 
 func (gl *GameLayer) HandleEvent(evt twodee.Event) bool {
+	var err error
 	switch event := evt.(type) {
 	case *twodee.MouseMoveEvent:
 		worldx, worldy := gl.tiles.ScreenToWorldCoords(event.X, event.Y)
@@ -220,6 +232,10 @@ func (gl *GameLayer) HandleEvent(evt twodee.Event) bool {
 				gl.app.GameEventHandler.Enqueue(twodee.NewBasicGameEvent(ResumeMusic))
 			} else {
 				gl.app.GameEventHandler.Enqueue(twodee.NewBasicGameEvent(PauseMusic))
+			}
+		case twodee.KeySpace:
+			if err = gl.script.TriggerEvent("foo", gl.player); err != nil {
+				fmt.Printf("Problem triggering event: %v\n", err)
 			}
 		}
 	}
