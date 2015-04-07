@@ -9,6 +9,8 @@ aseprite \
 TexturePacker \
   --data assets/textures/spritesheet.json \
   --format json-array \
+  --trim-sprite-names \
+  --size-constraints POT \
   --sheet assets/textures/spritesheet.png \
   tmp
 
