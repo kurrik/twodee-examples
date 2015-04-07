@@ -99,6 +99,18 @@ func GetLevel() (out *twodee.Batch, err error) {
 	return
 }
 
+func GetSpritesheet() (sheet *twodee.Spritesheet, texture *twodee.Texture, err error) {
+	var (
+		data []byte
+	)
+	if data, err = ioutil.ReadFile("..."); err != nil {
+		return
+	}
+	if sheet, err = twodee.ParseTexturePackerJSONArrayString(data); err != nil {
+		return
+	}
+}
+
 func NewGameLayer(winb twodee.Rectangle, state *State, app *Application) (layer *GameLayer, err error) {
 	layer = &GameLayer{
 		bounds: twodee.Rect(-10, -10, 10, 10),
