@@ -24,18 +24,21 @@ import (
 )
 
 type GameLayer struct {
-	tiles  *twodee.TileRenderer
-	batch  *twodee.BatchRenderer
-	glow   *twodee.GlowRenderer
-	mousex float32
-	mousey float32
-	player twodee.Entity
-	state  *State
-	bounds twodee.Rectangle
-	screen twodee.Rectangle
-	level  *twodee.Batch
-	app    *Application
-	script *twodee.Scripting
+	tiles        *twodee.TileRenderer
+	batch        *twodee.BatchRenderer
+	glow         *twodee.GlowRenderer
+	points       *twodee.PointsRenderer
+	mousex       float32
+	mousey       float32
+	player       twodee.Entity
+	state        *State
+	bounds       twodee.Rectangle
+	screen       twodee.Rectangle
+	level        *twodee.Batch
+	app          *Application
+	script       *twodee.Scripting
+	sheet        *twodee.Spritesheet
+	sheetTexture *twodee.Texture
 }
 
 func WriteGrid(m *tmxgo.Map) (err error) {
@@ -103,12 +106,16 @@ func GetSpritesheet() (sheet *twodee.Spritesheet, texture *twodee.Texture, err e
 	var (
 		data []byte
 	)
-	if data, err = ioutil.ReadFile("..."); err != nil {
+	if data, err = ioutil.ReadFile("assets/textures/spritesheet.json"); err != nil {
 		return
 	}
-	if sheet, err = twodee.ParseTexturePackerJSONArrayString(data); err != nil {
+	if sheet, err = twodee.ParseTexturePackerJSONArrayString(string(data)); err != nil {
 		return
 	}
+	if texture, err = twodee.LoadTexture("assets/textures/"+sheet.TexturePath, twodee.Nearest); err != nil {
+		return
+	}
+	return
 }
 
 func NewGameLayer(winb twodee.Rectangle, state *State, app *Application) (layer *GameLayer, err error) {
@@ -142,6 +149,9 @@ func (gl *GameLayer) Reset() (err error) {
 	if gl.glow != nil {
 		gl.glow.Delete()
 	}
+	if gl.points != nil {
+		gl.points.Delete()
+	}
 	var (
 		tilem = twodee.TileMetadata{
 			Path:       "assets/textures/sprites32.png",
@@ -159,7 +169,13 @@ func (gl *GameLayer) Reset() (err error) {
 	if gl.glow, err = twodee.NewGlowRenderer(128, 128, 10, 0.1, 1.0); err != nil {
 		return
 	}
+	if gl.points, err = twodee.NewPointsRenderer(gl.bounds, gl.screen); err != nil {
+		return
+	}
 	if gl.level, err = GetLevel(); err != nil {
+		return
+	}
+	if gl.sheet, gl.sheetTexture, err = GetSpritesheet(); err != nil {
 		return
 	}
 	if gl.script, err = twodee.NewScripting(); err != nil {
@@ -177,6 +193,8 @@ func (gl *GameLayer) Delete() {
 	gl.batch.Delete()
 	gl.level.Delete()
 	gl.glow.Delete()
+	gl.points.Delete()
+	gl.sheetTexture.Delete()
 }
 
 func (gl *GameLayer) Render() {
@@ -201,6 +219,19 @@ func (gl *GameLayer) Render() {
 	gl.tiles.Unbind()
 
 	gl.glow.Draw()
+
+	gl.sheetTexture.Bind()
+	var (
+		points []twodee.TexturedPoint = gl.sheet.GetFrame("numbered_squares_02").Points
+	)
+	gl.points.Draw(&twodee.InstanceList{
+		Geometry: points,
+		Instances: []twodee.InstanceAttributes{
+			twodee.InstanceAttributes{pt.X-1.0, pt.Y-2.0, 0, 0, 0, 0, 1.0, 1.0, 1.0},
+			twodee.InstanceAttributes{pt.X+1.0, pt.Y-2.0, 0, 0, 0, 0, 1.0, 1.0, 1.0},
+		},
+	})
+	gl.sheetTexture.Unbind()
 }
 
 func (gl *GameLayer) Update(elapsed time.Duration) {
