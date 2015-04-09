@@ -226,7 +226,6 @@ func (gl *GameLayer) Render() {
 		frame2 *twodee.SpritesheetFrame = gl.sheet.GetFrame("numbered_squares_14")
 	)
 	gl.points.Draw(&twodee.InstanceList{
-		Geometry: frame1.Points,
 		Instances: []twodee.InstanceAttributes{
 			twodee.InstanceAttributes{
 				pt.X - 1.0, pt.Y - 2.0, 0,
