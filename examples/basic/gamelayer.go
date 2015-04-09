@@ -222,13 +222,26 @@ func (gl *GameLayer) Render() {
 
 	gl.sheetTexture.Bind()
 	var (
-		points []twodee.TexturedPoint = gl.sheet.GetFrame("numbered_squares_02").Points
+		frame1 *twodee.SpritesheetFrame = gl.sheet.GetFrame("numbered_squares_02")
+		frame2 *twodee.SpritesheetFrame = gl.sheet.GetFrame("numbered_squares_01")
 	)
 	gl.points.Draw(&twodee.InstanceList{
-		Geometry: points,
+		Geometry: frame1.Points,
 		Instances: []twodee.InstanceAttributes{
-			twodee.InstanceAttributes{pt.X-1.0, pt.Y-2.0, 0, 0, 0, 0, 1.0, 1.0, 1.0},
-			twodee.InstanceAttributes{pt.X+1.0, pt.Y-2.0, 0, 0, 0, 0, 1.0, 1.0, 1.0},
+			twodee.InstanceAttributes{
+				pt.X - 1.0, pt.Y - 2.0, 0,
+				0, 0, 0,
+				1.0, 1.0, 1.0,
+				frame1.PointAdjustment,
+				frame1.TextureAdjustment,
+			},
+			twodee.InstanceAttributes{
+				0, 0, 0,
+				0, 0, 0,
+				1.0, 1.0, 1.0,
+				frame2.PointAdjustment,
+				frame2.TextureAdjustment,
+			},
 		},
 	})
 	gl.sheetTexture.Unbind()
@@ -255,21 +268,25 @@ func (gl *GameLayer) HandleEvent(evt twodee.Event) bool {
 			gl.bounds.Max.X -= dist
 			gl.tiles.SetWorldBounds(gl.bounds)
 			gl.batch.SetWorldBounds(gl.bounds)
+			gl.points.SetWorldBounds(gl.bounds)
 		case twodee.KeyRight:
 			gl.bounds.Min.X += dist
 			gl.bounds.Max.X += dist
 			gl.tiles.SetWorldBounds(gl.bounds)
 			gl.batch.SetWorldBounds(gl.bounds)
+			gl.points.SetWorldBounds(gl.bounds)
 		case twodee.KeyUp:
 			gl.bounds.Min.Y += dist
 			gl.bounds.Max.Y += dist
 			gl.tiles.SetWorldBounds(gl.bounds)
 			gl.batch.SetWorldBounds(gl.bounds)
+			gl.points.SetWorldBounds(gl.bounds)
 		case twodee.KeyDown:
 			gl.bounds.Min.Y -= dist
 			gl.bounds.Max.Y -= dist
 			gl.tiles.SetWorldBounds(gl.bounds)
 			gl.batch.SetWorldBounds(gl.bounds)
+			gl.points.SetWorldBounds(gl.bounds)
 		case twodee.KeyM:
 			if twodee.MusicIsPaused() {
 				gl.app.GameEventHandler.Enqueue(twodee.NewBasicGameEvent(ResumeMusic))
