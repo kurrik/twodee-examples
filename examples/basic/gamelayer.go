@@ -222,8 +222,8 @@ func (gl *GameLayer) Render() {
 
 	gl.sheetTexture.Bind()
 	var (
-		frame1 *twodee.SpritesheetFrame = gl.sheet.GetFrame("numbered_squares_02")
-		frame2 *twodee.SpritesheetFrame = gl.sheet.GetFrame("numbered_squares_01")
+		frame1 *twodee.SpritesheetFrame = gl.sheet.GetFrame("numbered_squares_07")
+		frame2 *twodee.SpritesheetFrame = gl.sheet.GetFrame("numbered_squares_14")
 	)
 	gl.points.Draw(&twodee.InstanceList{
 		Geometry: frame1.Points,
