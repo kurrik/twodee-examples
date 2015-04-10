@@ -25,7 +25,6 @@ import (
 )
 
 type GameLayer struct {
-	tiles        *twodee.TileRenderer
 	batch        *twodee.BatchRenderer
 	glow         *twodee.GlowRenderer
 	sprite       *twodee.SpriteRenderer
@@ -138,9 +137,6 @@ func NewGameLayer(winb twodee.Rectangle, state *State, app *Application) (layer 
 }
 
 func (gl *GameLayer) Reset() (err error) {
-	if gl.tiles != nil {
-		gl.tiles.Delete()
-	}
 	if gl.batch != nil {
 		gl.batch.Delete()
 	}
@@ -152,17 +148,6 @@ func (gl *GameLayer) Reset() (err error) {
 	}
 	if gl.sprite != nil {
 		gl.sprite.Delete()
-	}
-	var (
-		tilem = twodee.TileMetadata{
-			Path:       "assets/textures/sprites32.png",
-			PxPerUnit:  32,
-			TileWidth:  32,
-			TileHeight: 32,
-		}
-	)
-	if gl.tiles, err = twodee.NewTileRenderer(gl.bounds, gl.screen, tilem); err != nil {
-		return
 	}
 	if gl.batch, err = twodee.NewBatchRenderer(gl.bounds, gl.screen); err != nil {
 		return
@@ -190,7 +175,6 @@ func (gl *GameLayer) Reset() (err error) {
 }
 
 func (gl *GameLayer) Delete() {
-	gl.tiles.Delete()
 	gl.batch.Delete()
 	gl.level.Delete()
 	gl.glow.Delete()
@@ -279,7 +263,7 @@ func (gl *GameLayer) HandleEvent(evt twodee.Event) bool {
 	var err error
 	switch event := evt.(type) {
 	case *twodee.MouseMoveEvent:
-		worldx, worldy := gl.tiles.ScreenToWorldCoords(event.X, event.Y)
+		worldx, worldy := gl.sprite.ScreenToWorldCoords(event.X, event.Y)
 		gl.player.MoveTo(twodee.Pt(worldx, worldy))
 	case *twodee.KeyEvent:
 		if event.Type == twodee.Release {
@@ -290,25 +274,21 @@ func (gl *GameLayer) HandleEvent(evt twodee.Event) bool {
 		case twodee.KeyLeft:
 			gl.bounds.Min.X -= dist
 			gl.bounds.Max.X -= dist
-			gl.tiles.SetWorldBounds(gl.bounds)
 			gl.batch.SetWorldBounds(gl.bounds)
 			gl.sprite.SetWorldBounds(gl.bounds)
 		case twodee.KeyRight:
 			gl.bounds.Min.X += dist
 			gl.bounds.Max.X += dist
-			gl.tiles.SetWorldBounds(gl.bounds)
 			gl.batch.SetWorldBounds(gl.bounds)
 			gl.sprite.SetWorldBounds(gl.bounds)
 		case twodee.KeyUp:
 			gl.bounds.Min.Y += dist
 			gl.bounds.Max.Y += dist
-			gl.tiles.SetWorldBounds(gl.bounds)
 			gl.batch.SetWorldBounds(gl.bounds)
 			gl.sprite.SetWorldBounds(gl.bounds)
 		case twodee.KeyDown:
 			gl.bounds.Min.Y -= dist
 			gl.bounds.Max.Y -= dist
-			gl.tiles.SetWorldBounds(gl.bounds)
 			gl.batch.SetWorldBounds(gl.bounds)
 			gl.sprite.SetWorldBounds(gl.bounds)
 		case twodee.KeyM:
