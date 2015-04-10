@@ -27,7 +27,7 @@ type GameLayer struct {
 	tiles        *twodee.TileRenderer
 	batch        *twodee.BatchRenderer
 	glow         *twodee.GlowRenderer
-	points       *twodee.PointsRenderer
+	sprite       *twodee.SpriteRenderer
 	mousex       float32
 	mousey       float32
 	player       twodee.Entity
@@ -149,8 +149,8 @@ func (gl *GameLayer) Reset() (err error) {
 	if gl.glow != nil {
 		gl.glow.Delete()
 	}
-	if gl.points != nil {
-		gl.points.Delete()
+	if gl.sprite != nil {
+		gl.sprite.Delete()
 	}
 	var (
 		tilem = twodee.TileMetadata{
@@ -169,7 +169,7 @@ func (gl *GameLayer) Reset() (err error) {
 	if gl.glow, err = twodee.NewGlowRenderer(128, 128, 10, 0.1, 1.0); err != nil {
 		return
 	}
-	if gl.points, err = twodee.NewPointsRenderer(gl.bounds, gl.screen); err != nil {
+	if gl.sprite, err = twodee.NewSpriteRenderer(gl.bounds, gl.screen); err != nil {
 		return
 	}
 	if gl.level, err = GetLevel(); err != nil {
@@ -193,7 +193,7 @@ func (gl *GameLayer) Delete() {
 	gl.batch.Delete()
 	gl.level.Delete()
 	gl.glow.Delete()
-	gl.points.Delete()
+	gl.sprite.Delete()
 	gl.sheetTexture.Delete()
 }
 
@@ -225,22 +225,22 @@ func (gl *GameLayer) Render() {
 		frame1 *twodee.SpritesheetFrame = gl.sheet.GetFrame("numbered_squares_07")
 		frame2 *twodee.SpritesheetFrame = gl.sheet.GetFrame("numbered_squares_14")
 	)
-	gl.points.Draw(&twodee.InstanceList{
-		Instances: []twodee.InstanceAttributes{
-			twodee.InstanceAttributes{
+	gl.sprite.Draw([]twodee.SpriteConfig{
+		twodee.SpriteConfig{
+			View: twodee.ModelViewConfig{
 				pt.X - 1.0, pt.Y - 2.0, 0,
 				0, 0, 0,
 				1.0, 1.0, 1.0,
-				frame1.PointAdjustment,
-				frame1.TextureAdjustment,
 			},
-			twodee.InstanceAttributes{
+			Frame: frame1.Frame,
+		},
+		twodee.SpriteConfig{
+			View: twodee.ModelViewConfig{
 				0, 0, 0,
 				0, 0, 0,
 				1.0, 1.0, 1.0,
-				frame2.PointAdjustment,
-				frame2.TextureAdjustment,
 			},
+			Frame: frame2.Frame,
 		},
 	})
 	gl.sheetTexture.Unbind()
@@ -267,25 +267,25 @@ func (gl *GameLayer) HandleEvent(evt twodee.Event) bool {
 			gl.bounds.Max.X -= dist
 			gl.tiles.SetWorldBounds(gl.bounds)
 			gl.batch.SetWorldBounds(gl.bounds)
-			gl.points.SetWorldBounds(gl.bounds)
+			gl.sprite.SetWorldBounds(gl.bounds)
 		case twodee.KeyRight:
 			gl.bounds.Min.X += dist
 			gl.bounds.Max.X += dist
 			gl.tiles.SetWorldBounds(gl.bounds)
 			gl.batch.SetWorldBounds(gl.bounds)
-			gl.points.SetWorldBounds(gl.bounds)
+			gl.sprite.SetWorldBounds(gl.bounds)
 		case twodee.KeyUp:
 			gl.bounds.Min.Y += dist
 			gl.bounds.Max.Y += dist
 			gl.tiles.SetWorldBounds(gl.bounds)
 			gl.batch.SetWorldBounds(gl.bounds)
-			gl.points.SetWorldBounds(gl.bounds)
+			gl.sprite.SetWorldBounds(gl.bounds)
 		case twodee.KeyDown:
 			gl.bounds.Min.Y -= dist
 			gl.bounds.Max.Y -= dist
 			gl.tiles.SetWorldBounds(gl.bounds)
 			gl.batch.SetWorldBounds(gl.bounds)
-			gl.points.SetWorldBounds(gl.bounds)
+			gl.sprite.SetWorldBounds(gl.bounds)
 		case twodee.KeyM:
 			if twodee.MusicIsPaused() {
 				gl.app.GameEventHandler.Enqueue(twodee.NewBasicGameEvent(ResumeMusic))
