@@ -17,6 +17,7 @@ package main
 import (
 	twodee "../../libs/twodee"
 	"fmt"
+	"github.com/go-gl/mathgl/mgl32"
 	"github.com/kurrik/tmxgo"
 	"image/color"
 	"io/ioutil"
@@ -198,37 +199,56 @@ func (gl *GameLayer) Delete() {
 }
 
 func (gl *GameLayer) Render() {
+	var (
+		count                          = int(gl.state.ObjectCount)
+		tiles    []twodee.SpriteConfig = make([]twodee.SpriteConfig, count)
+		player   []twodee.SpriteConfig = make([]twodee.SpriteConfig, 1)
+		rando    []twodee.SpriteConfig
+		frame    *twodee.SpritesheetFrame
+		frame1   *twodee.SpritesheetFrame = gl.sheet.GetFrame("numbered_squares_07")
+		frame2   *twodee.SpritesheetFrame = gl.sheet.GetFrame("numbered_squares_14")
+		coord    float32
+		playerPt = gl.player.Pos()
+	)
 	gl.batch.Bind()
 	if err := gl.batch.Draw(gl.level, 0, 0, 0); err != nil {
 		panic(err)
 	}
 	gl.batch.Unbind()
-	gl.tiles.Bind()
-	count := int(gl.state.ObjectCount)
-	for i := 0; i < count; i++ {
-		coord := float32(i-(count/2)) / (float32(count) / 20.0)
-		gl.tiles.Draw(i, coord, coord, float32(i*15), false, false)
-	}
-	pt := gl.player.Pos()
-
-	gl.glow.Bind()
-	gl.tiles.Draw(gl.player.Frame(), pt.X, pt.Y, 0, pt.X < 0, pt.Y < 0)
-	gl.glow.Unbind()
-
-	gl.tiles.Draw(gl.player.Frame(), pt.X, pt.Y, 0, pt.X < 0, pt.Y < 0)
-	gl.tiles.Unbind()
-
-	gl.glow.Draw()
 
 	gl.sheetTexture.Bind()
-	var (
-		frame1 *twodee.SpritesheetFrame = gl.sheet.GetFrame("numbered_squares_07")
-		frame2 *twodee.SpritesheetFrame = gl.sheet.GetFrame("numbered_squares_14")
-	)
-	gl.sprite.Draw([]twodee.SpriteConfig{
+
+	for i := 0; i < count; i++ {
+		frame = gl.sheet.GetFrame(fmt.Sprintf("numbered_squares_%02d", (i%16)+1))
+		coord = float32(i-(count/2)) / (float32(count) / 20.0)
+		tiles[i] = twodee.SpriteConfig{
+			View: twodee.ModelViewConfig{
+				coord, coord, 0,
+				mgl32.DegToRad(float32(i * 15)), 0.0, 0.0,
+				1.0, 1.0, 1.0,
+			},
+			Frame: frame.Frame,
+		}
+	}
+
+	frame = gl.sheet.GetFrame(fmt.Sprintf("numbered_squares_%02d", gl.player.Frame()+1))
+	player[0] = twodee.SpriteConfig{
+		View: twodee.ModelViewConfig{
+			playerPt.X, playerPt.Y, 0,
+			0, 0, 0,
+			1.0, 1.0, 1.0,
+		},
+		Frame: frame.Frame,
+	}
+
+	gl.glow.Bind()
+	gl.sprite.Draw(player)
+	gl.glow.Unbind()
+
+	rando = []twodee.SpriteConfig{
 		twodee.SpriteConfig{
 			View: twodee.ModelViewConfig{
-				pt.X - 1.0, pt.Y - 2.0, 0,
+				playerPt.X - 1.0, playerPt.Y - 2.0, 0,
 				0, 0, 0,
 				1.0, 1.0, 1.0,
 			},
@@ -242,7 +262,12 @@ func (gl *GameLayer) Render() {
 			},
 			Frame: frame2.Frame,
 		},
-	})
+	}
+
+	gl.sprite.Draw(tiles)
+	gl.sprite.Draw(rando)
+	gl.sprite.Draw(player)
+	gl.glow.Draw()
 	gl.sheetTexture.Unbind()
 }
 
