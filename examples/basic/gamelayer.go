@@ -109,7 +109,7 @@ func GetSpritesheet() (sheet *twodee.Spritesheet, texture *twodee.Texture, err e
 	if data, err = ioutil.ReadFile("assets/textures/spritesheet.json"); err != nil {
 		return
 	}
-	if sheet, err = twodee.ParseTexturePackerJSONArrayString(string(data)); err != nil {
+	if sheet, err = twodee.ParseTexturePackerJSONArrayString(string(data), 32); err != nil {
 		return
 	}
 	if texture, err = twodee.LoadTexture("assets/textures/"+sheet.TexturePath, twodee.Nearest); err != nil {
