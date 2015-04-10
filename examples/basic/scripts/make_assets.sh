@@ -10,6 +10,10 @@ aseprite \
   --batch assets/originals/numbered_squares_tall.ase \
   --save-as tmp/numbered_squares_tall_01.png
 
+aseprite \
+  --batch assets/originals/numbered_squares_wide.ase \
+  --save-as tmp/numbered_squares_wide_01.png
+
 TexturePacker \
   --data assets/textures/spritesheet.json \
   --format json-array \

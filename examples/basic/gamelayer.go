@@ -190,7 +190,7 @@ func (gl *GameLayer) Render() {
 		rando    []twodee.SpriteConfig
 		frame    *twodee.SpritesheetFrame
 		frame1   *twodee.SpritesheetFrame = gl.sheet.GetFrame("numbered_squares_tall_07")
-		frame2   *twodee.SpritesheetFrame = gl.sheet.GetFrame("numbered_squares_tall_14")
+		frame2   *twodee.SpritesheetFrame = gl.sheet.GetFrame("numbered_squares_wide_14")
 		coord    float32
 		playerPt = gl.player.Pos()
 	)
