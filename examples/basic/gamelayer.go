@@ -28,6 +28,7 @@ type GameLayer struct {
 	batch        *twodee.BatchRenderer
 	glow         *twodee.GlowRenderer
 	sprite       *twodee.SpriteRenderer
+	lines        *twodee.LinesRenderer
 	mousex       float32
 	mousey       float32
 	player       twodee.Entity
@@ -149,6 +150,9 @@ func (gl *GameLayer) Reset() (err error) {
 	if gl.sprite != nil {
 		gl.sprite.Delete()
 	}
+	if gl.lines != nil {
+		gl.lines.Delete()
+	}
 	if gl.batch, err = twodee.NewBatchRenderer(gl.bounds, gl.screen); err != nil {
 		return
 	}
@@ -156,6 +160,9 @@ func (gl *GameLayer) Reset() (err error) {
 		return
 	}
 	if gl.sprite, err = twodee.NewSpriteRenderer(gl.bounds, gl.screen); err != nil {
+		return
+	}
+	if gl.lines, err = twodee.NewLinesRenderer(gl.bounds, gl.screen); err != nil {
 		return
 	}
 	if gl.level, err = GetLevel(); err != nil {
@@ -179,6 +186,7 @@ func (gl *GameLayer) Delete() {
 	gl.level.Delete()
 	gl.glow.Delete()
 	gl.sprite.Delete()
+	gl.lines.Delete()
 	gl.sheetTexture.Delete()
 }
 
@@ -253,6 +261,87 @@ func (gl *GameLayer) Render() {
 	gl.sprite.Draw(player)
 	gl.glow.Draw()
 	gl.sheetTexture.Unbind()
+
+	getPoint := func(pt mgl32.Vec2, norm twodee.Normal) twodee.TexturedPoint {
+		return twodee.TexturedPoint{
+			X:        pt[0],
+			Y:        pt[1],
+			Z:        norm.Length,
+			TextureX: norm.Vector[0],
+			TextureY: norm.Vector[1],
+		}
+	}
+	duplicateNormals := func(list []twodee.Normal) (out []twodee.Normal) {
+		out = make([]twodee.Normal, len(list)*2)
+		for i := 0; i < len(list); i++ {
+			out[2*i] = list[i]
+			out[2*i].Length *= -1
+			out[2*i+1] = list[i]
+		}
+		return
+	}
+	duplicateVec2 := func(list []mgl32.Vec2) (out []mgl32.Vec2) {
+		out = make([]mgl32.Vec2, len(list)*2)
+		for i := 0; i < len(list); i++ {
+			out[2*i] = list[i]
+			out[2*i+1] = list[i]
+		}
+		return
+	}
+	mod := mgl32.Vec2{-2.0, 2.0}
+	scale := float32(5.0)
+	closed := true
+	path := []mgl32.Vec2{
+		mgl32.Vec2{-1.0, -1.0}.Mul(scale).Add(mod),
+		mgl32.Vec2{1.0, -0.8}.Mul(scale).Add(mod),
+		mgl32.Vec2{1.0, 1.0}.Mul(scale).Add(mod),
+		mgl32.Vec2{-1.0, 1.0}.Mul(scale).Add(mod),
+	}
+	normals := twodee.GetNormals(path, closed)
+	fmt.Printf("PREDUP NORMALS: %v\n", normals)
+	fmt.Printf("PREDUP PATH: %v\n", path)
+
+	if (closed) {
+		normals = append(normals, normals[0])
+		path = append(path, path[0])
+	}
+	normals = duplicateNormals(normals)
+	path = duplicateVec2(path)
+	points := []twodee.TexturedPoint{
+		getPoint(path[0], normals[0+0]),
+		getPoint(path[1], normals[0+1]),
+		getPoint(path[2], normals[0+2]),
+		getPoint(path[2], normals[0+2]),
+		getPoint(path[1], normals[0+1]),
+		getPoint(path[3], normals[0+3]),
+
+		getPoint(path[2+0], normals[2+0]),
+		getPoint(path[2+1], normals[2+1]),
+		getPoint(path[2+2], normals[2+2]),
+		getPoint(path[2+2], normals[2+2]),
+		getPoint(path[2+1], normals[2+1]),
+		getPoint(path[2+3], normals[2+3]),
+
+		getPoint(path[4+0], normals[4+0]),
+		getPoint(path[4+1], normals[4+1]),
+		getPoint(path[4+2], normals[4+2]),
+		getPoint(path[4+2], normals[4+2]),
+		getPoint(path[4+1], normals[4+1]),
+		getPoint(path[4+3], normals[4+3]),
+
+		getPoint(path[6+0], normals[6+0]),
+		getPoint(path[6+1], normals[6+1]),
+		getPoint(path[6+2], normals[6+2]),
+		getPoint(path[6+2], normals[6+2]),
+		getPoint(path[6+1], normals[6+1]),
+		getPoint(path[6+3], normals[6+3]),
+	}
+	//fmt.Printf("POINTS: %v\n", points)
+	//fmt.Printf("NORMALS: %v\n", normals)
+	//fmt.Printf("PATH: %v\n", path)
+	gl.lines.Bind()
+	gl.lines.Draw(points, 0.5)
+	gl.lines.Unbind()
 }
 
 func (gl *GameLayer) Update(elapsed time.Duration) {
