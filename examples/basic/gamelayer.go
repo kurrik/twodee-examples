@@ -40,6 +40,7 @@ type GameLayer struct {
 	script       *twodee.Scripting
 	sheet        *twodee.Spritesheet
 	sheetTexture *twodee.Texture
+	lineSegments []mgl32.Vec2
 }
 
 func WriteGrid(m *tmxgo.Map) (err error) {
@@ -131,7 +132,8 @@ func NewGameLayer(winb twodee.Rectangle, state *State, app *Application) (layer 
 			twodee.Step10Hz,
 			[]int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15},
 		),
-		app: app,
+		app:          app,
+		lineSegments: []mgl32.Vec2{mgl32.Vec2{0, 0}},
 	}
 	err = layer.Reset()
 	return
@@ -262,86 +264,18 @@ func (gl *GameLayer) Render() {
 	gl.glow.Draw()
 	gl.sheetTexture.Unbind()
 
-	getPoint := func(pt mgl32.Vec2, norm twodee.Normal) twodee.TexturedPoint {
-		return twodee.TexturedPoint{
-			X:        pt[0],
-			Y:        pt[1],
-			Z:        norm.Length,
-			TextureX: norm.Vector[0],
-			TextureY: norm.Vector[1],
+	if len(gl.lineSegments) > 1 {
+		line := twodee.NewLineGeometry(gl.lineSegments, false)
+		style := &twodee.LineStyle{
+			Thickness: 0.2,
+			Color:     color.RGBA{0, 0, 255, 128},
+			Inner:     0.0,
 		}
+		modelview := mgl32.Ident4()
+		gl.lines.Bind()
+		gl.lines.Draw(line, modelview, style)
+		gl.lines.Unbind()
 	}
-	duplicateNormals := func(list []twodee.Normal) (out []twodee.Normal) {
-		out = make([]twodee.Normal, len(list)*2)
-		for i := 0; i < len(list); i++ {
-			out[2*i] = list[i]
-			out[2*i].Length *= -1
-			out[2*i+1] = list[i]
-		}
-		return
-	}
-	duplicateVec2 := func(list []mgl32.Vec2) (out []mgl32.Vec2) {
-		out = make([]mgl32.Vec2, len(list)*2)
-		for i := 0; i < len(list); i++ {
-			out[2*i] = list[i]
-			out[2*i+1] = list[i]
-		}
-		return
-	}
-	mod := mgl32.Vec2{-2.0, 2.0}
-	scale := float32(5.0)
-	closed := true
-	path := []mgl32.Vec2{
-		mgl32.Vec2{-1.0, -1.0}.Mul(scale).Add(mod),
-		mgl32.Vec2{1.0, -0.8}.Mul(scale).Add(mod),
-		mgl32.Vec2{1.0, 1.0}.Mul(scale).Add(mod),
-		mgl32.Vec2{-1.0, 1.0}.Mul(scale).Add(mod),
-	}
-	normals := twodee.GetNormals(path, closed)
-	fmt.Printf("PREDUP NORMALS: %v\n", normals)
-	fmt.Printf("PREDUP PATH: %v\n", path)
-
-	if (closed) {
-		normals = append(normals, normals[0])
-		path = append(path, path[0])
-	}
-	normals = duplicateNormals(normals)
-	path = duplicateVec2(path)
-	points := []twodee.TexturedPoint{
-		getPoint(path[0], normals[0+0]),
-		getPoint(path[1], normals[0+1]),
-		getPoint(path[2], normals[0+2]),
-		getPoint(path[2], normals[0+2]),
-		getPoint(path[1], normals[0+1]),
-		getPoint(path[3], normals[0+3]),
-
-		getPoint(path[2+0], normals[2+0]),
-		getPoint(path[2+1], normals[2+1]),
-		getPoint(path[2+2], normals[2+2]),
-		getPoint(path[2+2], normals[2+2]),
-		getPoint(path[2+1], normals[2+1]),
-		getPoint(path[2+3], normals[2+3]),
-
-		getPoint(path[4+0], normals[4+0]),
-		getPoint(path[4+1], normals[4+1]),
-		getPoint(path[4+2], normals[4+2]),
-		getPoint(path[4+2], normals[4+2]),
-		getPoint(path[4+1], normals[4+1]),
-		getPoint(path[4+3], normals[4+3]),
-
-		getPoint(path[6+0], normals[6+0]),
-		getPoint(path[6+1], normals[6+1]),
-		getPoint(path[6+2], normals[6+2]),
-		getPoint(path[6+2], normals[6+2]),
-		getPoint(path[6+1], normals[6+1]),
-		getPoint(path[6+3], normals[6+3]),
-	}
-	//fmt.Printf("POINTS: %v\n", points)
-	//fmt.Printf("NORMALS: %v\n", normals)
-	//fmt.Printf("PATH: %v\n", path)
-	gl.lines.Bind()
-	gl.lines.Draw(points, 0.5)
-	gl.lines.Unbind()
 }
 
 func (gl *GameLayer) Update(elapsed time.Duration) {
@@ -354,6 +288,11 @@ func (gl *GameLayer) HandleEvent(evt twodee.Event) bool {
 	case *twodee.MouseMoveEvent:
 		worldx, worldy := gl.sprite.ScreenToWorldCoords(event.X, event.Y)
 		gl.player.MoveTo(twodee.Pt(worldx, worldy))
+	case *twodee.MouseButtonEvent:
+		if event.Type == twodee.Press {
+			pos := gl.player.Pos()
+			gl.lineSegments = append(gl.lineSegments, mgl32.Vec2{pos.X, pos.Y})
+		}
 	case *twodee.KeyEvent:
 		if event.Type == twodee.Release {
 			break
@@ -365,21 +304,25 @@ func (gl *GameLayer) HandleEvent(evt twodee.Event) bool {
 			gl.bounds.Max.X -= dist
 			gl.batch.SetWorldBounds(gl.bounds)
 			gl.sprite.SetWorldBounds(gl.bounds)
+			gl.lines.SetWorldBounds(gl.bounds)
 		case twodee.KeyRight:
 			gl.bounds.Min.X += dist
 			gl.bounds.Max.X += dist
 			gl.batch.SetWorldBounds(gl.bounds)
 			gl.sprite.SetWorldBounds(gl.bounds)
+			gl.lines.SetWorldBounds(gl.bounds)
 		case twodee.KeyUp:
 			gl.bounds.Min.Y += dist
 			gl.bounds.Max.Y += dist
 			gl.batch.SetWorldBounds(gl.bounds)
 			gl.sprite.SetWorldBounds(gl.bounds)
+			gl.lines.SetWorldBounds(gl.bounds)
 		case twodee.KeyDown:
 			gl.bounds.Min.Y -= dist
 			gl.bounds.Max.Y -= dist
 			gl.batch.SetWorldBounds(gl.bounds)
 			gl.sprite.SetWorldBounds(gl.bounds)
+			gl.lines.SetWorldBounds(gl.bounds)
 		case twodee.KeyM:
 			if twodee.MusicIsPaused() {
 				gl.app.GameEventHandler.Enqueue(twodee.NewBasicGameEvent(ResumeMusic))
