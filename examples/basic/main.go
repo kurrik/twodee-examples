@@ -15,12 +15,11 @@
 package main
 
 import (
+	twodee "../../libs/twodee"
 	"fmt"
+	"github.com/go-gl/gl/v3.3-core/gl"
 	"runtime"
 	"time"
-
-	twodee "../../libs/twodee"
-	"github.com/go-gl/gl/v3.3-core/gl"
 )
 
 func init() {
