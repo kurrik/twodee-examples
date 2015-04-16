@@ -25,6 +25,7 @@ import (
 )
 
 type GameLayer struct {
+	camera       *twodee.Camera
 	batch        *twodee.BatchRenderer
 	glow         *twodee.GlowRenderer
 	sprite       *twodee.SpriteRenderer
@@ -33,8 +34,6 @@ type GameLayer struct {
 	mousey       float32
 	player       twodee.Entity
 	state        *State
-	bounds       twodee.Rectangle
-	screen       twodee.Rectangle
 	level        *twodee.Batch
 	app          *Application
 	script       *twodee.Scripting
@@ -121,9 +120,12 @@ func GetSpritesheet() (sheet *twodee.Spritesheet, texture *twodee.Texture, err e
 }
 
 func NewGameLayer(winb twodee.Rectangle, state *State, app *Application) (layer *GameLayer, err error) {
+	var camera *twodee.Camera
+	if camera, err = twodee.NewCamera(twodee.Rect(-10, -10, 10, 10), winb); err != nil {
+		return
+	}
 	layer = &GameLayer{
-		bounds: twodee.Rect(-10, -10, 10, 10),
-		screen: winb,
+		camera: camera,
 		state:  state,
 		player: twodee.NewAnimatingEntity(
 			0, 0,
@@ -155,16 +157,16 @@ func (gl *GameLayer) Reset() (err error) {
 	if gl.lines != nil {
 		gl.lines.Delete()
 	}
-	if gl.batch, err = twodee.NewBatchRenderer(gl.bounds, gl.screen); err != nil {
+	if gl.batch, err = twodee.NewBatchRenderer(gl.camera); err != nil {
 		return
 	}
 	if gl.glow, err = twodee.NewGlowRenderer(128, 128, 10, 0.1, 1.0); err != nil {
 		return
 	}
-	if gl.sprite, err = twodee.NewSpriteRenderer(gl.bounds, gl.screen); err != nil {
+	if gl.sprite, err = twodee.NewSpriteRenderer(gl.camera); err != nil {
 		return
 	}
-	if gl.lines, err = twodee.NewLinesRenderer(gl.bounds, gl.screen); err != nil {
+	if gl.lines, err = twodee.NewLinesRenderer(gl.camera); err != nil {
 		return
 	}
 	if gl.level, err = GetLevel(); err != nil {
@@ -286,7 +288,7 @@ func (gl *GameLayer) HandleEvent(evt twodee.Event) bool {
 	var err error
 	switch event := evt.(type) {
 	case *twodee.MouseMoveEvent:
-		worldx, worldy := gl.sprite.ScreenToWorldCoords(event.X, event.Y)
+		worldx, worldy := gl.camera.ScreenToWorldCoords(event.X, event.Y)
 		gl.player.MoveTo(twodee.Pt(worldx, worldy))
 	case *twodee.MouseButtonEvent:
 		if event.Type == twodee.Press {
@@ -300,29 +302,25 @@ func (gl *GameLayer) HandleEvent(evt twodee.Event) bool {
 		var dist float32 = 0.2
 		switch event.Code {
 		case twodee.KeyLeft:
-			gl.bounds.Min.X -= dist
-			gl.bounds.Max.X -= dist
-			gl.batch.SetWorldBounds(gl.bounds)
-			gl.sprite.SetWorldBounds(gl.bounds)
-			gl.lines.SetWorldBounds(gl.bounds)
+			bounds := gl.camera.WorldBounds
+			bounds.Min.X -= dist
+			bounds.Max.X -= dist
+			gl.camera.SetWorldBounds(bounds)
 		case twodee.KeyRight:
-			gl.bounds.Min.X += dist
-			gl.bounds.Max.X += dist
-			gl.batch.SetWorldBounds(gl.bounds)
-			gl.sprite.SetWorldBounds(gl.bounds)
-			gl.lines.SetWorldBounds(gl.bounds)
+			bounds := gl.camera.WorldBounds
+			bounds.Min.X += dist
+			bounds.Max.X += dist
+			gl.camera.SetWorldBounds(bounds)
 		case twodee.KeyUp:
-			gl.bounds.Min.Y += dist
-			gl.bounds.Max.Y += dist
-			gl.batch.SetWorldBounds(gl.bounds)
-			gl.sprite.SetWorldBounds(gl.bounds)
-			gl.lines.SetWorldBounds(gl.bounds)
+			bounds := gl.camera.WorldBounds
+			bounds.Min.Y += dist
+			bounds.Max.Y += dist
+			gl.camera.SetWorldBounds(bounds)
 		case twodee.KeyDown:
-			gl.bounds.Min.Y -= dist
-			gl.bounds.Max.Y -= dist
-			gl.batch.SetWorldBounds(gl.bounds)
-			gl.sprite.SetWorldBounds(gl.bounds)
-			gl.lines.SetWorldBounds(gl.bounds)
+			bounds := gl.camera.WorldBounds
+			bounds.Min.Y -= dist
+			bounds.Max.Y -= dist
+			gl.camera.SetWorldBounds(bounds)
 		case twodee.KeyM:
 			if twodee.MusicIsPaused() {
 				gl.app.GameEventHandler.Enqueue(twodee.NewBasicGameEvent(ResumeMusic))

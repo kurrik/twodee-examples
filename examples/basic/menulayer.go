@@ -42,13 +42,14 @@ type MenuLayer struct {
 	cache    map[int]*twodee.TextCache
 	hicache  *twodee.TextCache
 	actcache *twodee.TextCache
-	bounds   twodee.Rectangle
+	camera   *twodee.Camera
 	state    *State
 	app      *Application
 }
 
 func NewMenuLayer(winb twodee.Rectangle, state *State, app *Application) (layer *MenuLayer, err error) {
 	var (
+		camera  *twodee.Camera
 		menu    *twodee.Menu
 		regfont *twodee.FontFace
 		hifont  *twodee.FontFace
@@ -82,6 +83,10 @@ func NewMenuLayer(winb twodee.Rectangle, state *State, app *Application) (layer 
 	if err != nil {
 		return
 	}
+	// Text bounds are both the same.
+	if camera, err = twodee.NewCamera(winb, winb); err != nil {
+		return
+	}
 	layer = &MenuLayer{
 		app:      app,
 		menu:     menu,
@@ -89,7 +94,7 @@ func NewMenuLayer(winb twodee.Rectangle, state *State, app *Application) (layer 
 		cache:    map[int]*twodee.TextCache{},
 		actcache: twodee.NewTextCache(actfont),
 		hicache:  twodee.NewTextCache(hifont),
-		bounds:   winb,
+		camera:   camera,
 		state:    state,
 		visible:  false,
 	}
@@ -101,7 +106,7 @@ func (ml *MenuLayer) Reset() (err error) {
 	if ml.text != nil {
 		ml.text.Delete()
 	}
-	if ml.text, err = twodee.NewTextRenderer(ml.bounds); err != nil {
+	if ml.text, err = twodee.NewTextRenderer(ml.camera); err != nil {
 		return
 	}
 	ml.actcache.Clear()
@@ -129,7 +134,7 @@ func (ml *MenuLayer) Render() {
 		textcache *twodee.TextCache
 		texture   *twodee.Texture
 		ok        bool
-		y         = ml.bounds.Max.Y
+		y         = ml.camera.WorldBounds.Max.Y
 	)
 	ml.text.Bind()
 	for i, item := range ml.menu.Items() {
@@ -185,7 +190,7 @@ func (ml *MenuLayer) HandleEvent(evt twodee.Event) bool {
 		ml.app.GameEventHandler.Enqueue(twodee.NewBasicGameEvent(MenuSel))
 	case *twodee.MouseMoveEvent:
 		var (
-			y         = ml.bounds.Max.Y
+			y         = ml.camera.WorldBounds.Max.Y
 			my        = y - event.Y
 			texture   *twodee.Texture
 			textcache *twodee.TextCache

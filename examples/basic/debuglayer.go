@@ -22,6 +22,7 @@ import (
 )
 
 type DebugLayer struct {
+	camera  *twodee.Camera
 	text    *twodee.TextRenderer
 	fpstext *twodee.TextCache
 	font    *twodee.FontFace
@@ -52,7 +53,11 @@ func (dl *DebugLayer) Reset() (err error) {
 	if dl.text != nil {
 		dl.text.Delete()
 	}
-	if dl.text, err = twodee.NewTextRenderer(dl.bounds); err != nil {
+	// Both bounds same for text.
+	if dl.camera, err = twodee.NewCamera(dl.bounds, dl.bounds); err != nil {
+		return
+	}
+	if dl.text, err = twodee.NewTextRenderer(dl.camera); err != nil {
 		return
 	}
 	dl.fpstext.Clear()
