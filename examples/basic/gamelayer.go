@@ -25,6 +25,8 @@ import (
 )
 
 type GameLayer struct {
+	shake        *twodee.ContinuousAnimation
+	cameraBounds twodee.Rectangle
 	camera       *twodee.Camera
 	batch        *twodee.BatchRenderer
 	glow         *twodee.GlowRenderer
@@ -120,13 +122,19 @@ func GetSpritesheet() (sheet *twodee.Spritesheet, texture *twodee.Texture, err e
 }
 
 func NewGameLayer(winb twodee.Rectangle, state *State, app *Application) (layer *GameLayer, err error) {
-	var camera *twodee.Camera
-	if camera, err = twodee.NewCamera(twodee.Rect(-10, -10, 10, 10), winb); err != nil {
+	var (
+		camera       *twodee.Camera
+		cameraBounds = twodee.Rect(-10, -10, 10, 10)
+		decay        = twodee.SineDecayFunc(time.Duration(1)*time.Second, 0.5, 5.0, 1.0)
+	)
+	if camera, err = twodee.NewCamera(cameraBounds, winb); err != nil {
 		return
 	}
 	layer = &GameLayer{
-		camera: camera,
-		state:  state,
+		shake:        twodee.NewContinuousAnimation(decay),
+		camera:       camera,
+		cameraBounds: cameraBounds,
+		state:        state,
 		player: twodee.NewAnimatingEntity(
 			0, 0,
 			1, 1,
@@ -281,6 +289,14 @@ func (gl *GameLayer) Render() {
 }
 
 func (gl *GameLayer) Update(elapsed time.Duration) {
+	gl.shake.Update(elapsed)
+	bounds := twodee.Rect(
+		gl.cameraBounds.Min.X,
+		gl.cameraBounds.Min.Y+gl.shake.Value(),
+		gl.cameraBounds.Max.X,
+		gl.cameraBounds.Max.Y+gl.shake.Value(),
+	)
+	gl.camera.SetWorldBounds(bounds)
 	gl.player.Update(elapsed)
 }
 
@@ -302,25 +318,19 @@ func (gl *GameLayer) HandleEvent(evt twodee.Event) bool {
 		var dist float32 = 0.2
 		switch event.Code {
 		case twodee.KeyLeft:
-			bounds := gl.camera.WorldBounds
-			bounds.Min.X -= dist
-			bounds.Max.X -= dist
-			gl.camera.SetWorldBounds(bounds)
+			gl.cameraBounds.Min.X -= dist
+			gl.cameraBounds.Max.X -= dist
 		case twodee.KeyRight:
-			bounds := gl.camera.WorldBounds
-			bounds.Min.X += dist
-			bounds.Max.X += dist
-			gl.camera.SetWorldBounds(bounds)
+			gl.cameraBounds.Min.X += dist
+			gl.cameraBounds.Max.X += dist
 		case twodee.KeyUp:
-			bounds := gl.camera.WorldBounds
-			bounds.Min.Y += dist
-			bounds.Max.Y += dist
-			gl.camera.SetWorldBounds(bounds)
+			gl.cameraBounds.Min.Y += dist
+			gl.cameraBounds.Max.Y += dist
 		case twodee.KeyDown:
-			bounds := gl.camera.WorldBounds
-			bounds.Min.Y -= dist
-			bounds.Max.Y -= dist
-			gl.camera.SetWorldBounds(bounds)
+			gl.cameraBounds.Min.Y -= dist
+			gl.cameraBounds.Max.Y -= dist
+		case twodee.KeyS:
+			gl.shake.Reset()
 		case twodee.KeyM:
 			if twodee.MusicIsPaused() {
 				gl.app.GameEventHandler.Enqueue(twodee.NewBasicGameEvent(ResumeMusic))
